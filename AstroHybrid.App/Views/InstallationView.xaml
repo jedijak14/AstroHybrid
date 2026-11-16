@@ -146,12 +146,30 @@
                                 Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="124" MinHeight="36" FontSize="12.5"/>
                     </WrapPanel>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                        <Button Content="Open install folder" Command="{Binding OpenInstallFolderCommand}"
-                                Style="{StaticResource TextButtonStyle}" Margin="0,0,4,0" FontSize="12" Padding="8,4"/>
-                        <Button Content="Open logs" Command="{Binding OpenLogFolderCommand}"
-                                Style="{StaticResource TextButtonStyle}" FontSize="12" Padding="8,4"/>
-                    </StackPanel>
+                    <WrapPanel Margin="0,2,0,0">
+                        <Button Command="{Binding OpenInstallFolderCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8"
+                                MinWidth="176" MinHeight="36" FontSize="12.5" HorizontalContentAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M2.5,5.5 L2.5,15 L17.5,15 L17.5,5.5 L9.5,5.5 L8,3.2 L2.5,3.2 Z"
+                                      Width="15" Height="15" Stretch="Uniform" Fill="Transparent"
+                                      Stroke="{StaticResource TextSecondaryBrush}" StrokeThickness="1.4"
+                                      StrokeLineJoin="Round" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Install folder" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding OpenLogFolderCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                MinWidth="130" MinHeight="36" FontSize="12.5" HorizontalContentAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M4,2.5 L12,2.5 L16,6.5 L16,17.5 L4,17.5 Z M12,2.5 L12,6.5 L16,6.5"
+                                      Width="15" Height="15" Stretch="Uniform" Fill="Transparent"
+                                      Stroke="{StaticResource TextSecondaryBrush}" StrokeThickness="1.4"
+                                      StrokeLineJoin="Round" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Logs" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
                 </StackPanel>
             </Border>
 

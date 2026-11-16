@@ -48,7 +48,7 @@
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding LightingLabels}"
                                   SelectedIndex="{Binding LightingIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
                     <TextBlock Text="{Binding LightingNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
@@ -70,7 +70,7 @@
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding SpeedLabels}"
                                   SelectedIndex="{Binding SpeedIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
                     <TextBlock Text="{Binding SpeedNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
@@ -92,7 +92,7 @@
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding LanguageLabels}"
                                   SelectedIndex="{Binding LanguageIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
                     <TextBlock Text="{Binding LanguageNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
@@ -172,16 +172,6 @@
                     </Grid>
 
                     <TextBlock Text="{Binding PriorityNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Frame generation note -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="NVIDIA frame generation" Style="{StaticResource SectionHeaderStyle}"/>
-                    <TextBlock Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap">
-                        Frame generation is configured on the Graphics page. It needs an RTX 40-series card or newer.
-                    </TextBlock>
                 </StackPanel>
             </Border>
 

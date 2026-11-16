@@ -46,10 +46,10 @@
                         <ComboBox Grid.Row="0" Grid.Column="1"
                                   ItemsSource="{Binding ResolutionLabels}"
                                   SelectedIndex="{Binding ResolutionIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Mode" Margin="0,10,0,0"/>
-                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">
+                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Mode" Margin="0,10,0,0" VerticalAlignment="Top"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,8,0,0">
                             <CheckBox Content="Start in fullscreen"
                                       IsChecked="{Binding Fullscreen}"
                                       Style="{StaticResource ModernCheckBoxStyle}"/>
@@ -59,9 +59,9 @@
                         </StackPanel>
                     </Grid>
 
-                    <TextBlock Text="{Binding UltrawideNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
+                    <TextBlock Text="{Binding UltrawideNote}" Style="{StaticResource SettingsDescriptionStyle}" Margin="0,8,0,0"/>
 
-                    <Border Style="{StaticResource ModernSeparatorStyle}"/>
+                    <Border Style="{StaticResource ModernSeparatorStyle}" Margin="0,14,0,10"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -74,7 +74,7 @@
                                   ItemsSource="{Binding GpuLabels}"
                                   SelectedIndex="{Binding GpuIndex}"
                                   IsEnabled="{Binding HasGpuChoice}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
                     <TextBlock Text="{Binding GpuNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
 
@@ -102,7 +102,7 @@
                                   ItemsSource="{Binding FpsLabels}"
                                   SelectedIndex="{Binding FpsIndex}"
                                   IsEnabled="{Binding IsFpsLimitEnabled}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
                     <TextBlock Text="{Binding FpsLimitNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
@@ -128,7 +128,7 @@
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding RayTracingLabels}"
                                   SelectedIndex="{Binding RayTracingIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
                     <TextBlock Text="{Binding RayTracingNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
 
@@ -148,14 +148,14 @@
                         <ComboBox Grid.Row="0" Grid.Column="1"
                                   ItemsSource="{Binding UpscaleLabels}"
                                   SelectedIndex="{Binding UpscaleIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"
                                   IsEnabled="{Binding SupportsDlss}"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Frame generation" Margin="0,10,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Frame generation" Margin="0,10,0,0" Width="150"/>
                         <ComboBox Grid.Row="1" Grid.Column="1"
                                   ItemsSource="{Binding FrameGenLabels}"
                                   SelectedIndex="{Binding FrameGenIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320" Margin="0,10,0,0"
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380" Margin="0,10,0,0"
                                   IsEnabled="{Binding IsFrameGenAvailable}"/>
                     </Grid>
 
@@ -169,7 +169,7 @@
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding FrameGenTargetLabels}"
                                   SelectedIndex="{Binding FrameGenTargetIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
                     <TextBlock Text="{Binding FrameGenNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
@@ -195,7 +195,7 @@
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding OverlayLabels}"
                                   SelectedIndex="{Binding OverlayIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
                     <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap">
@@ -204,16 +204,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- Hardware -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="Detected hardware" Style="{StaticResource SectionHeaderStyle}"/>
-                    <Border Background="#12000000" CornerRadius="8" Padding="12,10"
-                            BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1">
-                        <TextBlock Text="{Binding HardwareNote}" Style="{StaticResource ConfigTextStyle}"/>
-                    </Border>
-                </StackPanel>
-            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

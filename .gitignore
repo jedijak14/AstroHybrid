@@ -25,3 +25,6 @@
 /AstroBot Launcher.exe
 /work/
 /Reddit post/
+
+# Renderer dependencies for Tools/brand/render_screenshots.js
+/node_modules/

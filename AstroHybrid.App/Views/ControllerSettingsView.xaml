@@ -54,7 +54,7 @@
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding ControllerLabels}"
                                   SelectedIndex="{Binding ControllerIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="320"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
                     <TextBlock Style="{StaticResource SettingsDescriptionStyle}">

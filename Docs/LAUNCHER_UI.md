@@ -63,3 +63,36 @@ builds. A glyph inherits the active colour through
 - Put future "tags" in a `WrapPanel`, not a `StackPanel`, so they reflow at the
   900 px minimum window width.
 - Cards carry a hairline border and a subtle gradient instead of a drop shadow.
+
+## Screenshots
+
+`docs/screenshots/*.png` are rendered from the XAML with
+`Tools/brand/render_screenshots.js`, because the app cannot be run in the
+environment the docs are maintained in. The renderer reads
+`AstroHybrid.App/Views/*.xaml`, rebuilds the window at its real 1100x720 size
+with the same cards, spacing and copy (plus representative strings from the view
+models), and rasterises the result.
+
+```bash
+npm i @resvg/resvg-js                      # once, plus the Inter woff files
+python3 - <<'PY'                           # woff -> ttf, resvg needs ttf
+from fontTools.ttLib import TTFont
+TTFont("inter-latin-600-normal.woff").save("inter-latin-600-normal.ttf")
+PY
+ASTROHYBRID_FONT_DIR=<dir with inter-latin-{400,500,600,700}-normal.ttf> \
+  node Tools/brand/render_screenshots.js
+```
+
+It covers the five pages (`app-home`, `app-graphics`, `app-controller`,
+`app-advanced`, `app-installation`). If a page is added or renamed, update the
+`SCENES` list - the renderer throws on a missing view rather than quietly
+producing a stale picture.
+
+Colours in the XAML are WPF's `#AARRGGBB`; the renderer converts them to
+`rgba()` because an eight-digit hex in SVG means `#RRGGBBAA`, which silently
+turns a translucent surface into a solid block.
+
+**These are renderings of the layout, not screenshots of a running app.** When
+the launcher can be built on Windows, replace them with real captures
+(1100x720, dark desktop) - the filenames and the README gallery can stay as they
+are.
