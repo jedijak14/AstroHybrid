@@ -15,10 +15,13 @@
     <Window.Resources>
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <local:BytesToStringConverter x:Key="BytesToStringConverter"/>
+
+        <Style x:Key="RequirementTextStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="Margin" Value="0,0,0,7"/>
+        </Style>
     </Window.Resources>
 
-
-    <Grid Margin="40">
+    <Grid Margin="36,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -26,132 +29,149 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,30">
-            <TextBlock Text="AstroHybrid" Style="{StaticResource TitleTextStyle}"/>
-            <TextBlock Text="Astro Bot Native PC Port Setup" Style="{StaticResource SubtitleTextStyle}"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,24">
+            <Image Source="/Resources/astrohybrid.png" Width="52" Height="52"
+                   RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
+            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="AstroHybrid" Style="{StaticResource TitleTextStyle}" FontSize="24"/>
+                <TextBlock Text="Set up Astro Bot on this PC" Style="{StaticResource SubtitleTextStyle}"/>
+            </StackPanel>
         </StackPanel>
 
         <!-- Content -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-        <Border Style="{StaticResource CardStyle}">
-            <StackPanel>
-                <!-- Welcome Screen -->
-                <StackPanel x:Name="WelcomePanel" Visibility="Visible">
-                    <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,0,0,20">
-                        Welcome to AstroHybrid! This setup wizard will help you prepare Astro Bot for Windows using your own legally obtained PS5 game dump.
-                    </TextBlock>
+            <Border Style="{StaticResource CardStyle}" Margin="0">
+                <StackPanel>
+                    <!-- Welcome -->
+                    <StackPanel x:Name="WelcomePanel" Visibility="Visible">
+                        <TextBlock Text="WHAT THIS DOES" Style="{StaticResource EyebrowTextStyle}"/>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,8,0,18" TextWrapping="Wrap">
+                            AstroHybrid builds a native Windows version of Astro Bot from your own game dump.
+                            The dump is only read, never changed - everything is written to a separate folder.
+                        </TextBlock>
 
-                    <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,0,0,10" FontWeight="SemiBold">
-                        You will need:
-                    </TextBlock>
-                    <StackPanel Margin="20,0,0,20">
-                        <TextBlock Style="{StaticResource BodyTextStyle}">• A PS5 Astro Bot game dump (folder containing eboot.bin)</TextBlock>
-                        <TextBlock Style="{StaticResource BodyTextStyle}">• Approximately 2-3 GB of free disk space</TextBlock>
-                        <TextBlock Style="{StaticResource BodyTextStyle}">• NVIDIA RTX GPU recommended for DLSS/Frame Generation</TextBlock>
+                        <TextBlock Text="YOU WILL NEED" Style="{StaticResource EyebrowTextStyle}"/>
+                        <StackPanel Margin="0,8,0,16">
+                            <TextBlock Style="{StaticResource RequirementTextStyle}" Text="A PS5 Astro Bot dump (the folder with eboot.bin)"/>
+                            <TextBlock Style="{StaticResource RequirementTextStyle}" Text="About 3 GB of free disk space"/>
+                            <TextBlock Style="{StaticResource RequirementTextStyle}" Text="An NVIDIA RTX card for DLSS and frame generation"/>
+                        </StackPanel>
+
+                        <Border Background="#12FFFFFF" CornerRadius="8" Padding="12,10"
+                                BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1">
+                            <TextBlock Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" LineHeight="18">
+                                No game files ship with AstroHybrid. Setup takes a few minutes and runs once.
+                            </TextBlock>
+                        </Border>
                     </StackPanel>
 
-                    <TextBlock Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap">
-                        The original game dump will never be modified. All files are created in a separate installation directory.
-                    </TextBlock>
-                </StackPanel>
+                    <!-- Game selection -->
+                    <StackPanel x:Name="GameSelectionPanel" Visibility="Collapsed">
+                        <TextBlock Text="GAME DUMP" Style="{StaticResource EyebrowTextStyle}"/>
+                        <TextBlock Text="Pick the folder that contains eboot.bin"
+                                   Style="{StaticResource SectionHeaderStyle}" Margin="0,6,0,0"/>
 
-                <!-- Game Selection -->
-                <StackPanel x:Name="GameSelectionPanel" Visibility="Collapsed">
-                    <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Select Game Dump"/>
-                    <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,0,0,10">
-                        Browse to your Astro Bot PS5 game dump folder (the folder containing eboot.bin):
-                    </TextBlock>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding GameDumpPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModernTextBoxStyle}"
+                                     ToolTip="Type or paste the dump folder, or use Browse"/>
+                            <Button Grid.Column="1" Content="Browse…"
+                                    Command="{Binding BrowseCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Margin="10,0,0,0" MinWidth="100"/>
+                        </Grid>
 
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0"
-                                 Text="{Binding GameDumpPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource ModernTextBoxStyle}"
-                                 ToolTip="Type or paste the dump folder, or use Browse"/>
-                        <Button Grid.Column="1" Content="Browse..."
-                                Command="{Binding BrowseCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Margin="10,0,0,0" MinWidth="100"/>
-                    </Grid>
+                        <TextBlock x:Name="ValidationErrorText"
+                                   Text="{Binding ValidationError}"
+                                   Style="{StaticResource ErrorTextStyle}"
+                                   Visibility="{Binding ShowError, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                   TextWrapping="Wrap" Margin="0,10,0,0"/>
 
-                    <TextBlock x:Name="ValidationErrorText"
-                               Text="{Binding ValidationError}"
-                               Style="{StaticResource ErrorTextStyle}"
-                               Visibility="{Binding ShowError, Converter={StaticResource BooleanToVisibilityConverter}}"
-                               TextWrapping="Wrap" Margin="0,0,0,10"/>
+                        <!-- Detected game info -->
+                        <Border x:Name="GameInfoBorder" Visibility="Collapsed" Style="{StaticResource PanelStyle}" Margin="0,14,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Detected" Style="{StaticResource EyebrowTextStyle}" Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Title ID" Width="96"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameInfo.TitleId}"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Version" Width="96" Margin="0,6,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameInfo.Version}" Margin="0,6,0,0"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Eboot size" Width="96" Margin="0,6,0,0"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameInfo.EbootSize, Converter={StaticResource BytesToStringConverter}}" Margin="0,6,0,0"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Status" Width="96" Margin="0,6,0,0"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Foreground="{StaticResource SuccessBrush}" Text="Looks good" Margin="0,6,0,0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
 
-                    <!-- Game Info Preview -->
-                    <Border x:Name="GameInfoBorder" Visibility="Collapsed" Style="{StaticResource PanelStyle}" Margin="0,10,0,0">
-                        <StackPanel>
-                            <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Detected Game Information"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Title ID: "/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameInfo.TitleId}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Version: "/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameInfo.Version}"/>
-                                <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Eboot Size: "/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameInfo.EbootSize, Converter={StaticResource BytesToStringConverter}}"/>
-                                <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Status: "/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Foreground="{StaticResource SuccessBrush}" Text="Valid ✓"/>
-                            </Grid>
+                    <!-- Installing -->
+                    <StackPanel x:Name="InstallPanel" Visibility="Collapsed">
+                        <TextBlock Text="SETTING UP" Style="{StaticResource EyebrowTextStyle}"/>
+                        <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource BodyTextStyle}" Margin="0,6,0,12"/>
+
+                        <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
+                                     Style="{StaticResource ModernProgressBarStyle}" Height="8"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock Style="{StaticResource MutedTextStyle}">
+                                <Run Text="{Binding ProgressPercent, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}"/><Run Text="%"/>
+                            </TextBlock>
+                            <TextBlock Text="This can take a few minutes. Leave the window open."
+                                       Style="{StaticResource MutedTextStyle}" Margin="12,0,0,0"/>
                         </StackPanel>
-                    </Border>
+
+                        <TextBlock x:Name="InstallErrorText"
+                                   Text="{Binding ValidationError}"
+                                   Style="{StaticResource ErrorTextStyle}"
+                                   Visibility="{Binding ShowError, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                   TextWrapping="Wrap" Margin="0,12,0,0"/>
+                    </StackPanel>
+
+                    <!-- Done -->
+                    <StackPanel x:Name="CompletePanel" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Border Width="26" Height="26" CornerRadius="13" Background="#2635D0A5" Margin="0,0,10,0">
+                                <Path Data="M0,4.5 L3.5,8 L9,1.5" Stroke="{StaticResource SuccessBrush}" StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Setup complete" Style="{StaticResource TitleTextStyle}" FontSize="24" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,0,0,0">
+                            Astro Bot is ready. Set up graphics and controller options, then press Play.
+                        </TextBlock>
+                    </StackPanel>
                 </StackPanel>
-
-                <!-- Installation Progress -->
-                <StackPanel x:Name="InstallPanel" Visibility="Collapsed">
-                    <TextBlock Style="{StaticResource SectionHeaderStyle}" Text="Installing AstroHybrid"/>
-                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{Binding StatusMessage}" Margin="0,0,0,10"/>
-
-                    <ProgressBar Value="{Binding ProgressPercent}" Maximum="100"
-                                 Style="{StaticResource ModernProgressBarStyle}" Height="10"/>
-
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,10,0,0">
-                        <Run Text="{Binding ProgressPercent}"/>% complete
-                    </TextBlock>
-
-                    <TextBlock x:Name="InstallErrorText"
-                               Text="{Binding ValidationError}"
-                               Style="{StaticResource ErrorTextStyle}"
-                               Visibility="{Binding ShowError, Converter={StaticResource BooleanToVisibilityConverter}}"
-                               TextWrapping="Wrap" Margin="0,10,0,0"/>
-                </StackPanel>
-
-                <!-- Complete -->
-                <StackPanel x:Name="CompletePanel" Visibility="Collapsed">
-                    <TextBlock Style="{StaticResource TitleTextStyle}" Foreground="{StaticResource SuccessBrush}" Text="✓ Setup Complete"/>
-                    <TextBlock Style="{StaticResource BodyTextStyle}" Margin="0,10,0,0">
-                        AstroHybrid has been successfully installed. You can now configure your graphics and controller settings and launch the game.
-                    </TextBlock>
-                </StackPanel>
-            </StackPanel>
-        </Border>
+            </Border>
         </ScrollViewer>
 
-        <!-- Bottom Buttons -->
+        <!-- Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
             <Button Content="Cancel" Command="{Binding CancelCommand}"
-                    Style="{StaticResource SecondaryButtonStyle}" MinWidth="100"/>
+                    Style="{StaticResource SecondaryButtonStyle}" MinWidth="96"/>
             <Button x:Name="NextButton" Content="Check folder" Command="{Binding ValidateCommand}"
-                    Style="{StaticResource PrimaryButtonStyle}" MinWidth="120" Margin="10,0,0,0"/>
+                    Style="{StaticResource PrimaryButtonStyle}" MinWidth="124" Margin="10,0,0,0"/>
             <Button x:Name="InstallButton" Content="Install" Command="{Binding InstallCommand}"
-                    Style="{StaticResource PrimaryButtonStyle}" MinWidth="120" Margin="10,0,0,0"
+                    Style="{StaticResource PrimaryButtonStyle}" MinWidth="124" Margin="10,0,0,0"
                     Visibility="Collapsed" IsEnabled="{Binding CanProceed}"/>
             <Button x:Name="FinishButton" Content="Finish" Command="{Binding CancelCommand}"
-                    Style="{StaticResource PrimaryButtonStyle}" MinWidth="120" Margin="10,0,0,0"
+                    Style="{StaticResource PrimaryButtonStyle}" MinWidth="124" Margin="10,0,0,0"
                     Visibility="Collapsed"/>
         </StackPanel>
     </Grid>

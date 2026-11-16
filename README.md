@@ -141,7 +141,7 @@ drives the screen:
 | `Docs` | Build instructions, technical plans, reverse-engineering notes, and the full results log (`OVERNIGHT.md`) |
 | `Run-AstroHybrid*.bat` | Start scripts: plain, DLSS, Frame Generation |
 | `AstroHybrid.App` | The AstroHybrid app (WPF, .NET Framework 4.8): setup from a dump (`Services/GameSetup.cs`, a C# port of AnyPS5's `unwrap_self.py`), settings, best settings for the PC, launch |
-| `Tools/release` | `make_release.ps1` builds the download from a working install (with a guard against game files); `make_icon.ps1` draws the app icon |
+| `Tools/release` | `make_release.ps1` builds the download from a working install (with a guard against game files); `make_icon.ps1` draws the app icon (the Python source of the mark is `Tools/brand/make_logo.py`) |
 
 ## Status
 

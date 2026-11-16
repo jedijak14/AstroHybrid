@@ -8,123 +8,171 @@
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800">
 
+    <UserControl.Resources>
+        <Style x:Key="KeyStyle" TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+            <Setter Property="Width" Value="130"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+
+        <Style x:Key="ValueStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- One definition row inside a card -->
+        <Style x:Key="DefRowStyle" TargetType="Grid">
+            <Setter Property="Margin" Value="0,0,0,9"/>
+        </Style>
+    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="0,0,0,20">
-            <!-- Installation Status -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="Installation Status" Style="{StaticResource SectionHeaderStyle}"/>
+            <StackPanel Margin="0,0,0,18">
+                <TextBlock Text="INSTALLATION" Style="{StaticResource EyebrowTextStyle}"/>
+                <TextBlock Text="What is on disk" Style="{StaticResource TitleTextStyle}" FontSize="26" Margin="0,4,0,0"/>
+            </StackPanel>
 
-                    <Grid Margin="0,10,0,0">
+            <!-- Status -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Ellipse Width="7" Height="7" VerticalAlignment="Center" Margin="0,0,8,0"
+                                     Fill="{Binding State.IsInstalled, Converter={StaticResource BoolToStatusBrushConverter}}"/>
+                            <TextBlock Text="{Binding State.IsInstalled, Converter={StaticResource BoolToStatusConverter}}"
+                                       Style="{StaticResource SectionHeaderStyle}" Margin="0"
+                                       Foreground="{Binding State.IsInstalled, Converter={StaticResource BoolToStatusBrushConverter}}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="1" Style="{StaticResource ChipStyle}" Margin="0">
+                            <TextBlock Style="{StaticResource ChipTextStyle}">
+                                <Run Text="{Binding InstallSize, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <Run Text=" on disk" Foreground="{StaticResource TextMutedBrush}"/>
+                            </TextBlock>
+                        </Border>
+                    </Grid>
+
+                    <Grid Style="{StaticResource DefRowStyle}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Status:" Width="150"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold"
-                                   Text="{Binding State.IsInstalled, Converter={StaticResource BoolToStatusConverter}}"
-                                   Foreground="{Binding State.IsInstalled, Converter={StaticResource BoolToStatusBrushConverter}}"/>
-
-                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Install Path:" Width="150"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding InstallPath}" TextWrapping="Wrap"/>
-
-                        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Game Dump:" Width="150"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameDumpPath}" TextWrapping="Wrap"/>
-
-                        <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Game Version:" Width="150"/>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameVersion}"/>
-
-                        <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Title ID:" Width="150"/>
-                        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding GameTitleId}"/>
-
-                        <TextBlock Grid.Row="5" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Installed:" Width="150"/>
-                        <TextBlock Grid.Row="5" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding InstalledAt}"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource KeyStyle}" Text="Install path"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource ValueStyle}" Text="{Binding InstallPath}"
+                                   FontFamily="{StaticResource FontFamilyMono}" FontSize="12"/>
                     </Grid>
-                </StackPanel>
-            </Border>
 
-            <!-- Installation Size -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="Installation Size" Style="{StaticResource SectionHeaderStyle}"/>
-                    <TextBlock Text="{Binding InstallSize}" Style="{StaticResource BodyTextStyle}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" Margin="0,10,0,0"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Tool Versions -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="Tool Versions" Style="{StaticResource SectionHeaderStyle}"/>
-
-                    <Grid Margin="0,10,0,0">
+                    <Grid Style="{StaticResource DefRowStyle}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource KeyStyle}" Text="Game dump"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource ValueStyle}" Text="{Binding GameDumpPath}"
+                                   FontFamily="{StaticResource FontFamilyMono}" FontSize="12"/>
+                    </Grid>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="AnyPS5:" Width="150"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding AnyPs5Version}"/>
+                    <Grid Style="{StaticResource DefRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource KeyStyle}" Text="Game version"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource ValueStyle}" Text="{Binding GameVersion}"/>
+                    </Grid>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource MutedTextStyle}" Text="Kyty GPU:" Width="150"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Text="{Binding KytyVersion}"/>
+                    <Grid Style="{StaticResource DefRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource KeyStyle}" Text="Title ID"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource ValueStyle}" Text="{Binding GameTitleId}"/>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource KeyStyle}" Text="Installed"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource ValueStyle}" Text="{Binding InstalledAt}"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
-            <!-- Actions -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- Tool versions -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Actions" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="Runtime components" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button Content="Repair Installation" Command="{Binding RepairCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"/>
-                        <Button Content="Rebuild Installation" Command="{Binding RebuildCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"/>
-                        <Button Content="Change Location" Command="{Binding ChangeLocationCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}"/>
-                    </StackPanel>
+                    <Grid Style="{StaticResource DefRowStyle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource KeyStyle}" Text="AnyPS5"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource ValueStyle}" Text="{Binding AnyPs5Version}"/>
+                    </Grid>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button Content="Open Install Folder" Command="{Binding OpenInstallFolderCommand}"
-                                Style="{StaticResource TextButtonStyle}" Margin="0,0,10,0"/>
-                        <Button Content="Open Log Folder" Command="{Binding OpenLogFolderCommand}"
-                                Style="{StaticResource TextButtonStyle}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource KeyStyle}" Text="Kyty GPU"/>
+                        <TextBlock Grid.Column="1" Style="{StaticResource ValueStyle}" Text="{Binding KytyVersion}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Maintenance -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Maintenance" Style="{StaticResource SectionHeaderStyle}"/>
+
+                    <WrapPanel>
+                        <Button Content="Repair" Command="{Binding RepairCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="104" MinHeight="36" FontSize="12.5"/>
+                        <Button Content="Rebuild" Command="{Binding RebuildCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="104" MinHeight="36" FontSize="12.5"/>
+                        <Button Content="Change location" Command="{Binding ChangeLocationCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="124" MinHeight="36" FontSize="12.5"/>
+                    </WrapPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <Button Content="Open install folder" Command="{Binding OpenInstallFolderCommand}"
+                                Style="{StaticResource TextButtonStyle}" Margin="0,0,4,0" FontSize="12" Padding="8,4"/>
+                        <Button Content="Open logs" Command="{Binding OpenLogFolderCommand}"
+                                Style="{StaticResource TextButtonStyle}" FontSize="12" Padding="8,4"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
-            <!-- Danger Zone -->
-            <Border Style="{StaticResource CardStyle}" BorderBrush="{StaticResource ErrorBrush}">
+            <!-- Danger zone -->
+            <Border Style="{StaticResource CardStyle}" BorderBrush="#3DFF5C6C" Background="#12FF5C6C">
                 <StackPanel>
-                    <TextBlock Text="⚠ Danger Zone" Style="{StaticResource SectionHeaderStyle}" Foreground="{StaticResource ErrorBrush}"/>
+                    <TextBlock Text="Remove AstroHybrid" Style="{StaticResource SectionHeaderStyle}"
+                               Foreground="{StaticResource ErrorBrush}"/>
 
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,10,0,10" TextWrapping="Wrap">
-                        These actions are irreversible. Your original game dump will NOT be deleted.
+                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,0,0,14" TextWrapping="Wrap">
+                        These actions cannot be undone. Your original game dump is never touched.
                     </TextBlock>
 
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Run Setup Again" Command="{Binding RunSetupAgainCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"
-                                Background="#33AA0000" BorderBrush="#AA0000" Foreground="#FFAA00"/>
-                        <Button Content="Uninstall AstroHybrid" Command="{Binding UninstallCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Background="#33AA0000" BorderBrush="#AA0000" Foreground="#FFAA00"/>
-                    </StackPanel>
+                    <WrapPanel>
+                        <Button Content="Run setup again" Command="{Binding RunSetupAgainCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="132" MinHeight="36"
+                                FontSize="12.5" BorderBrush="#55FF5C6C" Foreground="{StaticResource WarningBrush}"/>
+                        <Button Content="Uninstall" Command="{Binding UninstallCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" MinWidth="104" MinHeight="36" Margin="0,0,0,8"
+                                FontSize="12.5" BorderBrush="#55FF5C6C" Foreground="{StaticResource WarningBrush}"/>
+                    </WrapPanel>
                 </StackPanel>
             </Border>
         </StackPanel>
