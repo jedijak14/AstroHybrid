@@ -107,8 +107,25 @@ buys you *smoother output at the same game speed* through Frame Generation, not 
 | RTX 40 (4060 and up) | 8 GB | 32-34 *est.* | DLSS | 2x only | 60-68 *arithmetic* | **Good.** Same ceiling as RTX 50, half the smoothness. |
 | RTX 30 (3060 and up) | 8 GB | 30-34 *est.* | DLSS | no | same | **Playable.** DLSS and Reflex, the rate the port runs at. |
 | RTX 20 (2060 and up) | 6-8 GB | 28-34 *est.* | DLSS | no | same | **Playable.** Oldest tier that gets NVIDIA features at all. |
-| GTX 10/16 series, Arc, RX 6000/7000 | 6-8 GB | 26-34 *est.* | game's own | no | same | **Playable.** Budget a card with 8 GB; VRAM is the real floor. |
-| Integrated graphics (Iris Xe, Vega, 700M) | shared | single digits to mid-teens *est.* | game's own | no | same | **Not playable.** Nothing to turn on that would fix it. |
+| GTX 10/16 series, Arc A750/A770 | 6-8 GB | 26-34 *est.* | game's own | no | same | **Playable.** Budget a card with 8 GB; VRAM is the real floor. |
+| Radeon RX 7900 / 9070 | 16 GB | 32-34 *est.* | game's own | no | same | **Playable.** Far more GPU than the CPU-limited frame needs. |
+| Radeon RX 7600 / 6700 / 6600 | 8 GB | 28-34 *est.* | game's own | no | same | **Playable.** The sensible AMD target; already at the CPU ceiling. |
+| Radeon RX 5700 / Vega 56/64 | 8 GB | 24-32 *est.* | game's own | no | same | **Playable, at the edge.** Older drivers, no headroom. |
+| Radeon RX 6500 XT / 6400 | 4 GB | below 30 *est.* | game's own | no | same | **Below the floor.** 4 GB of VRAM is the problem, not the chip. |
+| Integrated graphics (Iris Xe, Vega 8, 700M/800M) | shared | single digits to mid-teens *est.* | game's own | no | same | **Not playable.** Nothing to turn on that would fix it. |
+
+**AMD cards specifically.** None of the NVIDIA features apply, and the launcher says so instead of half-enabling
+them: FSR is not implemented (`HardwareDetector.cs`, "AMD FSR support would go here"), so the
+Upscaling and Frame generation menus stay greyed out (`SupportsDlss` is false without an RTX card) and **Tune
+for this PC** sets resolution, fullscreen and the 30 FPS cap and nothing else. AMD's own Fluid Motion Frames is a
+driver feature and is not wired up here either; do not turn it on expecting the same thing as Frame Generation.
+
+What that means in practice: a Radeon card plays the way an RTX 20 or 30 card does, at the game's own rate, with
+no smoothing on top. Because the frame is CPU-limited at 30-34 FPS, an RX 6600 and an RX 7900 XTX should land in
+much the same place, so there is little reason to buy up for this port. Detection covers the discrete names (`RX` plus
+`Pro W`, `FirePro`, `Radeon Pro`); "Radeon(TM) Graphics", Vega 8 and the 700M/800M parts are read as integrated
+graphics. All of this is *est.*: the project has never run on an AMD card, and the only Vulkan driver tested is
+NVIDIA 32.0.16.2101.
 
 One **reported** machine sits outside this table: an RTX 4050 laptop with an i7-13700HX read 15-16 FPS on the
 title screen with heavy queue lag in game (AnyPS5 discussion #11917). A 4050 is the bottom of the RTX 40 range
