@@ -82,7 +82,9 @@ for tag in "${WANTED[@]}"; do
   mapfile -t asset_sizes < <(jq -r '.assets[].size' <<<"$src_json")
   mapfile -t asset_digests < <(jq -r '.assets[] | (.digest // "")' <<<"$src_json")
 
-  printf '%s' "$(jq -r '.body // ""' <<<"$src_json")" > "$WORK_DIR/notes.md"
+  # jq's raw output is used directly (no $(...) capture) so the body is byte-identical:
+  # command substitution would strip trailing newlines that upstream has.
+  jq -r '.body // ""' <<<"$src_json" > "$WORK_DIR/notes.md"
   log "$tag: \"$title\", ${#asset_ids[@]} asset(s)"
 
   # 2. Create the release on the target if it is not there yet.
