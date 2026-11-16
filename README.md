@@ -36,6 +36,11 @@ what setup built.
 | ![Home page](docs/screenshots/app-home.png) | ![Graphics page](docs/screenshots/app-graphics.png) |
 | **Controller** | **Advanced** |
 | ![Controller page](docs/screenshots/app-controller.png) | ![Advanced page](docs/screenshots/app-advanced.png) |
+| **Installation** | |
+| ![Installation page](docs/screenshots/app-installation.png) | |
+
+The images are rendered from the launcher's XAML (`Tools/brand/render_screenshots.js`) so they match
+the shipped layout; see [Docs/LAUNCHER_UI.md](Docs/LAUNCHER_UI.md).
 
 ## What it is
 
@@ -141,7 +146,7 @@ drives the screen:
 | `Docs` | Build instructions, technical plans, reverse-engineering notes, and the full results log (`OVERNIGHT.md`) |
 | `Run-AstroHybrid*.bat` | Start scripts: plain, DLSS, Frame Generation |
 | `AstroHybrid.App` | The AstroHybrid app (WPF, .NET Framework 4.8): setup from a dump (`Services/GameSetup.cs`, a C# port of AnyPS5's `unwrap_self.py`), settings, best settings for the PC, launch |
-| `Tools/release` | `make_release.ps1` builds the download from a working install (with a guard against game files); `make_icon.ps1` draws the app icon |
+| `Tools/release` | `make_release.ps1` builds the download from a working install (with a guard against game files); `make_icon.ps1` draws the app icon (the Python source of the mark is `Tools/brand/make_logo.py`) |
 
 ## Status
 

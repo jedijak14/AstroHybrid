@@ -10,17 +10,29 @@
 
     <UserControl.Resources>
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-    </UserControl.Resources>
 
+        <Style x:Key="RowLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="150"/>
+        </Style>
+    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="0,0,0,20">
-            <!-- Resolution & Display -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- Page header -->
+            <StackPanel Margin="0,0,0,18">
+                <TextBlock Text="GRAPHICS" Style="{StaticResource EyebrowTextStyle}"/>
+                <TextBlock Text="Display and rendering" Style="{StaticResource TitleTextStyle}" FontSize="26" Margin="0,4,0,0"/>
+                <TextBlock Text="Changes apply the next time you press Play."
+                           Style="{StaticResource MutedTextStyle}" Margin="0,5,0,0"/>
+            </StackPanel>
+
+            <!-- Display -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Display" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <Grid Margin="0,10,0,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
@@ -28,181 +40,170 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Resolution" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Resolution"/>
                         <ComboBox Grid.Row="0" Grid.Column="1"
                                   ItemsSource="{Binding ResolutionLabels}"
                                   SelectedIndex="{Binding ResolutionIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="300"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
 
-                        <CheckBox Grid.Row="1" Grid.Column="1" Content="Start in fullscreen"
-                                   IsChecked="{Binding Fullscreen}"
-                                   Style="{StaticResource ModernCheckBoxStyle}"
-                                   VerticalAlignment="Center" Margin="0,10,0,0"/>
-
-                        <CheckBox Grid.Row="2" Grid.Column="1" Content="Ultrawide 21:9 rendering"
-                                   IsChecked="{Binding Ultrawide}"
-                                   Style="{StaticResource ModernCheckBoxStyle}"
-                                   VerticalAlignment="Center" Margin="0,10,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Mode" Margin="0,10,0,0" VerticalAlignment="Top"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,8,0,0">
+                            <CheckBox Content="Start in fullscreen"
+                                      IsChecked="{Binding Fullscreen}"
+                                      Style="{StaticResource ModernCheckBoxStyle}"/>
+                            <CheckBox Content="Ultrawide 21:9 rendering"
+                                      IsChecked="{Binding Ultrawide}"
+                                      Style="{StaticResource ModernCheckBoxStyle}" Margin="0,10,0,0"/>
+                        </StackPanel>
                     </Grid>
-                    <TextBlock Text="{Binding UltrawideNote}" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap"/>
 
-                    <!-- Graphics card (issue #24): integrated and discrete adapters can be chosen. -->
-                    <Grid Margin="0,12,0,0">
+                    <TextBlock Text="{Binding UltrawideNote}" Style="{StaticResource SettingsDescriptionStyle}" Margin="0,8,0,0"/>
+
+                    <Border Style="{StaticResource ModernSeparatorStyle}" Margin="0,14,0,10"/>
+
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Graphics card" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Graphics card"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding GpuLabels}"
                                   SelectedIndex="{Binding GpuIndex}"
                                   IsEnabled="{Binding HasGpuChoice}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
-                    <TextBlock Text="{Binding GpuNote}" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding GpuNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
 
-                    <CheckBox Content="VSync (no tearing; may add a little input delay)"
+                    <CheckBox Content="VSync (no tearing, slightly more input delay)"
                               IsChecked="{Binding VSync}"
                               IsEnabled="{Binding IsVSyncAvailable}"
-                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,10,0,0"/>
-                    <TextBlock Text="{Binding VSyncNote}" Style="{StaticResource MutedTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,14,0,0"/>
+                    <TextBlock Text="{Binding VSyncNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
                 </StackPanel>
             </Border>
 
-            <!-- Frame Rate -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- Frame rate -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Frame Rate" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="Frame rate" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <Grid Margin="0,10,0,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Limit" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Limit"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding FpsLabels}"
                                   SelectedIndex="{Binding FpsIndex}"
                                   IsEnabled="{Binding IsFpsLimitEnabled}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap" Text="{Binding FpsLimitNote}"/>
+                    <TextBlock Text="{Binding FpsLimitNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
+                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap"
+                               Text="Ctrl+F2 cycles the limit while the game is running."/>
                 </StackPanel>
             </Border>
 
-            <!-- NVIDIA RTX Features -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- NVIDIA features -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="NVIDIA RTX Features" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="NVIDIA RTX features" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="{Binding HardwareNote}" Style="{StaticResource MutedTextStyle}"
+                               TextWrapping="Wrap" Margin="0,0,0,14"/>
 
-                    <TextBlock Text="{Binding HardwareNote}" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,15" TextWrapping="Wrap"/>
-
-                    <!-- Ray Tracing (OFF / ON) -->
-                    <Grid Margin="0,0,0,6">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Ray Tracing (RTX)" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Ray tracing"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding RayTracingLabels}"
                                   SelectedIndex="{Binding RayTracingIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
-                    <TextBlock Text="{Binding RayTracingNote}" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,12" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding RayTracingNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
 
-                    <!-- Upscaling -->
-                    <Grid Margin="0,0,0,10">
+                    <Border Style="{StaticResource ModernSeparatorStyle}"/>
+
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Upscaling" VerticalAlignment="Center" Width="150"/>
-                        <ComboBox Grid.Column="1"
+                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Upscaling"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1"
                                   ItemsSource="{Binding UpscaleLabels}"
                                   SelectedIndex="{Binding UpscaleIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"
                                   IsEnabled="{Binding SupportsDlss}"/>
-                    </Grid>
 
-                    <!-- Frame Generation -->
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Frame Generation" VerticalAlignment="Center" Width="150"/>
-                        <ComboBox Grid.Column="1"
+                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Frame generation" Margin="0,10,0,0" Width="150"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1"
                                   ItemsSource="{Binding FrameGenLabels}"
                                   SelectedIndex="{Binding FrameGenIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380" Margin="0,10,0,0"
                                   IsEnabled="{Binding IsFrameGenAvailable}"/>
                     </Grid>
 
-                    <!-- Frame Gen Target -->
-                    <Grid Margin="0,0,0,10" Visibility="{Binding IsFrameGenTargetEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid Margin="0,10,0,0" Visibility="{Binding IsFrameGenTargetEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Target FPS" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Target frame rate"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding FrameGenTargetLabels}"
                                   SelectedIndex="{Binding FrameGenTargetIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
-                    <!-- Frame Gen Note -->
-                    <TextBlock Text="{Binding FrameGenNote}" Style="{StaticResource MutedTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding FrameGenNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
 
-                    <!-- Reflex -->
-                    <CheckBox Content="NVIDIA Low Latency (Reflex)" IsChecked="{Binding LowLatency}"
-                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,15,0,0"
+                    <CheckBox Content="NVIDIA Reflex low latency" IsChecked="{Binding LowLatency}"
+                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,14,0,0"
                               IsEnabled="{Binding SupportsReflex}"/>
                 </StackPanel>
             </Border>
 
-            <!-- Performance Overlay -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- Overlay -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Performance Overlay" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="Performance overlay" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <Grid Margin="0,10,0,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Show Stats" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Show stats"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding OverlayLabels}"
                                   SelectedIndex="{Binding OverlayIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,8,0,0">
-                        In game: F2 shows/hides overlay, Ctrl+F2 changes frame-rate limit, F11 or Alt+Enter toggles fullscreen.
+                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap">
+                        In game: F2 shows the overlay, Ctrl+F2 changes the limit, F11 or Alt+Enter toggles fullscreen.
                     </TextBlock>
                 </StackPanel>
             </Border>
 
-            <!-- Hardware Summary -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="Hardware Summary" Style="{StaticResource SectionHeaderStyle}"/>
-                    <TextBlock Text="{Binding HardwareNote}" Style="{StaticResource BodyTextStyle}" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

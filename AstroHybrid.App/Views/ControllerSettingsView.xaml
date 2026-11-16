@@ -11,103 +11,124 @@
     <UserControl.Resources>
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
-    </UserControl.Resources>
 
+        <Style x:Key="RowLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="150"/>
+        </Style>
+
+        <!-- Feature tag for a connected pad -->
+        <Style x:Key="TagStyle" TargetType="Border">
+            <Setter Property="Background" Value="#12FFFFFF"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="7,2"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+
+        <Style x:Key="TagTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        </Style>
+    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="0,0,0,20">
-            <!-- Controller Selection -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <StackPanel Margin="0,0,0,18">
+                <TextBlock Text="CONTROLLER" Style="{StaticResource EyebrowTextStyle}"/>
+                <TextBlock Text="Input, rumble and motion" Style="{StaticResource TitleTextStyle}" FontSize="26" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Preferred controller -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Controller" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <Grid Margin="0,10,0,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Preferred Controller" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Preferred"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding ControllerLabels}"
                                   SelectedIndex="{Binding ControllerIndex}"
-                                  Style="{StaticResource ModernComboBoxStyle}" Width="400"/>
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap">
-                        Auto detects the controller you press. PlayStation and Switch Pro controllers support motion and haptics. Xbox controllers use View/Back button for tilt.
+                    <TextBlock Style="{StaticResource SettingsDescriptionStyle}">
+                        Auto picks whichever pad you press first. PlayStation and Switch Pro controllers support
+                        motion and haptics; Xbox pads use View/Back to toggle tilt.
                     </TextBlock>
                 </StackPanel>
             </Border>
 
             <!-- Vibration -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Vibration" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <Grid Margin="0,10,0,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" Text="Strength" VerticalAlignment="Center" Width="150"/>
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Strength"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <ComboBox ItemsSource="{Binding RumbleLabels}"
                                       SelectedIndex="{Binding RumbleIndex}"
-                                      Style="{StaticResource ModernComboBoxStyle}" Width="300"/>
+                                      Style="{StaticResource ModernComboBoxStyle}" Width="240"/>
                             <TextBox Text="{Binding RumbleCustomPercent, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                      IsEnabled="{Binding IsCustomRumble}"
                                      Style="{StaticResource ModernTextBoxStyle}"
-                                     Width="70" Margin="10,0,0,0"
+                                     Width="64" Margin="10,0,0,0"
                                      ToolTip="0 to 200 percent; choose Custom in the list to change it"/>
-                            <TextBlock Text="%" VerticalAlignment="Center" Margin="6,0,0,0" Style="{StaticResource BodyTextStyle}"/>
+                            <TextBlock Text="%" VerticalAlignment="Center" Margin="7,0,0,0" Style="{StaticResource BodyTextStyle}"/>
                         </StackPanel>
                     </Grid>
 
-                    <CheckBox Content="Stronger vibration on Switch-style pads (third-party ones)"
+                    <CheckBox Content="Boost rumble on third-party Switch-style pads"
                               IsChecked="{Binding SwitchBoost}"
-                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,10,0,0"/>
+                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,14,0,0"/>
 
-                    <TextBlock Text="{Binding VibrationNote}" Style="{StaticResource MutedTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding VibrationNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
                 </StackPanel>
             </Border>
 
-            <!-- Motion Controls -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- Motion -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Motion Controls" Style="{StaticResource SectionHeaderStyle}"/>
-
-                    <TextBlock Text="{Binding MotionNote}" Style="{StaticResource BodyTextStyle}" TextWrapping="Wrap" Margin="0,10,0,0"/>
-
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap">
-                        DualSense and Switch Pro controllers have built-in motion sensors.
-                        Xbox and generic pads: press View/Back to enable tilt with right stick, press again to disable.
+                    <TextBlock Text="Motion controls" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="{Binding MotionNote}" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBlock Style="{StaticResource SettingsDescriptionStyle}">
+                        DualSense and Switch Pro pads have built-in sensors. On Xbox and generic pads, press
+                        View/Back to steer with the right stick, and again to turn it off.
                     </TextBlock>
                 </StackPanel>
             </Border>
 
-            <!-- Trigger Effects & Wireless DualSense -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- DualSense extras -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="DualSense Features (Triggers, Speaker &amp; Haptics)" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="DualSense details" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="{Binding TriggerNote}" Style="{StaticResource BodyTextStyle}"/>
 
-                    <TextBlock Text="{Binding TriggerNote}" Style="{StaticResource BodyTextStyle}" TextWrapping="Wrap" Margin="0,10,0,0"/>
-
-                    <CheckBox Content="DualSense Wireless Speaker over Bluetooth"
+                    <CheckBox Content="Speaker over Bluetooth"
                               IsChecked="{Binding DualSenseWirelessSpeaker}"
-                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,12,0,0"/>
+                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,14,0,0"/>
 
-                    <CheckBox Content="DualSense Wireless HD Haptics over Bluetooth"
+                    <CheckBox Content="HD haptics over Bluetooth"
                               IsChecked="{Binding DualSenseWirelessHaptics}"
-                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,8,0,0"/>
+                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,10,0,0"/>
 
-                    <TextBlock Text="{Binding DualSenseWirelessNote}" Style="{StaticResource MutedTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding DualSenseWirelessNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
                 </StackPanel>
             </Border>
 
-            <!-- Connected Controllers -->
-            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+            <!-- Connected pads -->
+            <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -115,15 +136,15 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="Connected Controllers" Style="{StaticResource SectionHeaderStyle}"/>
+                        <TextBlock Grid.Column="0" Text="Connected controllers" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
                         <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshControllersCommand}"
-                                Style="{StaticResource TextButtonStyle}"/>
+                                Style="{StaticResource TextButtonStyle}" FontSize="12" Padding="8,4"/>
                     </Grid>
 
-                    <ItemsControl ItemsSource="{Binding ConnectedControllers}" Margin="0,10,0,0">
+                    <ItemsControl ItemsSource="{Binding ConnectedControllers}" Margin="0,12,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource PanelStyle}" Margin="0,5,0,0">
+                                <Border Style="{StaticResource PanelStyle}" Margin="0,0,0,8">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -131,35 +152,45 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" FontSize="18" Margin="0,0,12,0">
+                                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" FontSize="17"
+                                                   Margin="0,0,12,0" VerticalAlignment="Center">
                                             <TextBlock.Text>
                                                 <Binding Path="Type" Converter="{StaticResource ControllerTypeToIconConverter}"/>
                                             </TextBlock.Text>
                                         </TextBlock>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}" Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Type}" Style="{StaticResource MutedTextStyle}"/>
-                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                <TextBlock Text="✓ Connected" Style="{StaticResource MutedTextStyle}" FontSize="11" Foreground="{StaticResource SuccessBrush}"
-                                                           Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                <TextBlock Text="✗ Disconnected" Style="{StaticResource MutedTextStyle}" FontSize="11" Foreground="{StaticResource ErrorBrush}"
-                                                           Visibility="{Binding IsConnected, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
-                                                <TextBlock Text=" | " Style="{StaticResource MutedTextStyle}" FontSize="11"/>
-                                                <TextBlock Text="🎮 Haptics" Style="{StaticResource MutedTextStyle}" FontSize="11"
-                                                           Visibility="{Binding HasHaptics, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                <TextBlock Text=" | " Style="{StaticResource MutedTextStyle}" FontSize="11"
-                                                           Visibility="{Binding HasHaptics, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                <TextBlock Text="🎯 Motion" Style="{StaticResource MutedTextStyle}" FontSize="11"
-                                                           Visibility="{Binding HasMotionSensors, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                <TextBlock Text=" | " Style="{StaticResource MutedTextStyle}" FontSize="11"
-                                                           Visibility="{Binding HasMotionSensors, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                <TextBlock Text="⚡ Triggers" Style="{StaticResource MutedTextStyle}" FontSize="11"
-                                                           Visibility="{Binding HasTriggerEffects, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource BodyTextStyle}"
+                                                       FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{Binding Type}" Style="{StaticResource MutedTextStyle}" Margin="0,2,0,0"/>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+                                                <Border Style="{StaticResource TagStyle}" Background="#1A35D0A5">
+                                                    <TextBlock Text="Connected" Style="{StaticResource TagTextStyle}"
+                                                               Foreground="{StaticResource SuccessBrush}"
+                                                               Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                    <TextBlock Text="Disconnected" Style="{StaticResource TagTextStyle}"
+                                                               Foreground="{StaticResource ErrorBrush}"
+                                                               Visibility="{Binding IsConnected, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                                                </Border>
+                                                <Border Style="{StaticResource TagStyle}"
+                                                        Visibility="{Binding HasHaptics, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <TextBlock Text="Haptics" Style="{StaticResource TagTextStyle}"/>
+                                                </Border>
+                                                <Border Style="{StaticResource TagStyle}"
+                                                        Visibility="{Binding HasMotionSensors, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <TextBlock Text="Motion" Style="{StaticResource TagTextStyle}"/>
+                                                </Border>
+                                                <Border Style="{StaticResource TagStyle}"
+                                                        Visibility="{Binding HasTriggerEffects, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <TextBlock Text="Triggers" Style="{StaticResource TagTextStyle}"/>
+                                                </Border>
                                             </StackPanel>
                                         </StackPanel>
 
-                                        <TextBlock Grid.Column="2" Text="{Binding InstanceId}" Style="{StaticResource MutedTextStyle}" FontSize="10" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding InstanceId}" Style="{StaticResource MutedTextStyle}"
+                                                   FontSize="10" VerticalAlignment="Center" Margin="12,0,0,0"
+                                                   FontFamily="{StaticResource FontFamilyMono}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
