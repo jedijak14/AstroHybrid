@@ -296,7 +296,7 @@ namespace AstroHybrid.App.Services
                 }
                 Directory.CreateDirectory(extractDir);
 
-                ZipFile.ExtractToDirectory(tempFile, extractDir, true);
+                ExtractUpdatePackage(tempFile, extractDir);
 
                 state.DownloadStatus = "Installing update...";
                 StateChanged?.Invoke(state);
@@ -392,6 +392,50 @@ namespace AstroHybrid.App.Services
             catch { }
 
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Unpacks the update package one entry at a time.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately not <c>ZipFile.ExtractToDirectory</c>: the overload that overwrites existing
+        /// files is not in .NET Framework 4.8, and the two-argument form throws when a file is there.
+        /// Doing the entries by hand also makes the path check explicit, which matters for an archive
+        /// downloaded from the network: an entry named <c>..\..\something</c> must not be written
+        /// outside the extraction folder.
+        /// </remarks>
+        private static void ExtractUpdatePackage(string packagePath, string destinationDirectory)
+        {
+            var root = Path.GetFullPath(destinationDirectory);
+            if (!root.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+            {
+                root += Path.DirectorySeparatorChar;
+            }
+
+            using var archive = ZipFile.OpenRead(packagePath);
+            foreach (var entry in archive.Entries)
+            {
+                // A directory entry has an empty name and is created with its files.
+                if (string.IsNullOrEmpty(entry.Name))
+                {
+                    continue;
+                }
+
+                var target = Path.GetFullPath(Path.Combine(root, entry.FullName));
+                if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException(
+                        $"The update package contains an entry outside the extraction folder: {entry.FullName}");
+                }
+
+                var directory = Path.GetDirectoryName(target);
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                entry.ExtractToFile(target, overwriteFiles: true);
+            }
         }
 
         private string? FindLauncherExe(string extractDir)

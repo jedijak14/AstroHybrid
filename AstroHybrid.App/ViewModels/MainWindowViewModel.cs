@@ -97,7 +97,17 @@ namespace AstroHybrid.App.ViewModels
             base.OnPropertyChanged(propertyName);
             if (propertyName == nameof(Settings) && !IsLoading && _settingsManager != null)
             {
-                try { _settingsManager.Save(Settings); } catch { }
+                // Every settings change reaches the file through here, so a failure has to be visible:
+                // a swallowed exception means the player's change is gone with no sign of why.
+                try
+                {
+                    _settingsManager.Save(Settings);
+                }
+                catch (Exception ex)
+                {
+                    StatusMessage = $"The settings could not be saved: {ex.Message}";
+                    LogDebug($"Settings save failed: {ex}");
+                }
             }
         }
 
@@ -184,8 +194,8 @@ namespace AstroHybrid.App.ViewModels
         public ICommand IgnoreUpdateCommand { get; }
         public ICommand DismissUpdateNotificationCommand { get; }
 
-        /// <summary>Records a settings recovery next to the app's other debug output.</summary>
-        private void LogRecovery(string message)
+        /// <summary>Appends a line to the app's debug log (Logs\astrohybrid-debug.log).</summary>
+        private void LogDebug(string message)
         {
             try
             {
@@ -213,7 +223,7 @@ namespace AstroHybrid.App.ViewModels
                 _settingsRecoveryNotice = _settingsManager.RecoveryNotice;
                 if (!string.IsNullOrEmpty(_settingsRecoveryNotice))
                 {
-                    LogRecovery(_settingsRecoveryNotice!);
+                    LogDebug(_settingsRecoveryNotice!);
                 }
 
                 // Check installation state
