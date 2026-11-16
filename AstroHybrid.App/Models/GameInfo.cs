@@ -32,6 +32,16 @@ namespace AstroHybrid.App.Models
         public bool SupportsReflex { get; set; } = false;
         public int MaxFrameGenMultiplier { get; set; } = 1;
 
+        // AMD Radeon generation, for the driver-level features in Adrenalin: 6000 (RDNA 2) and newer
+        // for Fluid Motion Frames, 5000 (RDNA) and newer for Radeon Super Resolution. 0 = not a
+        // Radeon card this launcher recognises.
+        public int RadeonSeries { get; set; } = 0;
+
+        // Fluid Motion Frames and Radeon Super Resolution are AMD Software features, so a recognised
+        // Radeon card needs 6000 and newer; anything older (or a card from another vendor) gets none.
+        public bool SupportsAmdFluidMotion => RadeonSeries >= 6000;
+        public bool SupportsAmdSuperResolution => RadeonSeries >= 6000;
+
         public string KindLabel => IsDiscrete ? "discrete" : IsIntegrated ? "integrated" : "graphics";
 
         public string Label => $"{Name} ({KindLabel}){(IsPrimaryDisplay ? ", drives the screen" : "")}";
@@ -75,6 +85,11 @@ namespace AstroHybrid.App.Models
         public bool SupportsFrameGeneration => SelectedGpu?.SupportsFrameGeneration == true;
         public bool SupportsReflex => SelectedGpu?.SupportsReflex == true;
         public int MaxFrameGenMultiplier => SelectedGpu?.MaxFrameGenMultiplier ?? 1;
+
+        public int RadeonSeries => SelectedGpu?.RadeonSeries ?? 0;
+        public bool SupportsAmdFluidMotion => SelectedGpu?.SupportsAmdFluidMotion == true;
+        public bool SupportsAmdSuperResolution => SelectedGpu?.SupportsAmdSuperResolution == true;
+        public string Vendor => SelectedGpu?.Vendor ?? "";
 
         public string CpuName { get; set; } = "Unknown CPU";
         public int CpuThreads { get; set; } = Environment.ProcessorCount;

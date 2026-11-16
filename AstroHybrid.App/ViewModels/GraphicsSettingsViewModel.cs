@@ -77,6 +77,11 @@ namespace AstroHybrid.App.ViewModels
                 OnPropertyChanged(nameof(SupportsDlss));
                 OnPropertyChanged(nameof(SupportsReflex));
                 OnPropertyChanged(nameof(IsFrameGenAvailable));
+                OnPropertyChanged(nameof(SupportsAmd));
+                OnPropertyChanged(nameof(AmdFeaturesNote));
+                OnPropertyChanged(nameof(AmdNote));
+                OnPropertyChanged(nameof(AmdFluidMotion));
+                OnPropertyChanged(nameof(AmdRenderSizeEnabled));
                 _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.HardwareInfo));
                 _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.Settings));
             }
@@ -99,7 +104,9 @@ namespace AstroHybrid.App.ViewModels
                 else
                     text += " The choice is passed to the game as ANYPS5_GPU; the renderer also prefers a discrete card by itself.";
 
-                if (hardware.SelectedGpu?.RtxSeries >= 20)
+                if (hardware.SelectedGpu?.SupportsAmdSuperResolution == true)
+                    text += " AMD Software's Fluid Motion Frames and Radeon Super Resolution apply to this card.";
+                else if (hardware.SelectedGpu?.RtxSeries >= 20)
                     text += " DLSS, Reflex and frame generation use this card.";
                 else if (hardware.Gpus.Any(g => g.RtxSeries >= 20))
                     text += " The NVIDIA options need the RTX card: pick it, or Automatic, to use them.";
@@ -217,9 +224,17 @@ namespace AstroHybrid.App.ViewModels
                 if (_mainViewModel.Settings.Upscale != value)
                 {
                     _mainViewModel.Settings.Upscale = value;
+                    // DLSS and Radeon Super Resolution are both upscalers: AMD's own guidance is not
+                    // to stack them, so choosing DLSS turns RSR off (and the reverse, below).
+                    if (value != 0 && _mainViewModel.Settings.AmdSuperResolution)
+                        _mainViewModel.Settings.AmdSuperResolution = false;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsFrameGenAvailable));
                     OnPropertyChanged(nameof(FrameGenNote));
+                    OnPropertyChanged(nameof(AmdSuperResolution));
+                    OnPropertyChanged(nameof(AmdRenderSizeIndex));
+                    OnPropertyChanged(nameof(AmdRenderSizeEnabled));
+                    OnPropertyChanged(nameof(AmdNote));
                     _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.Settings));
                 }
             }
@@ -236,6 +251,14 @@ namespace AstroHybrid.App.ViewModels
                 if (_mainViewModel.Settings.FrameGenMode != value)
                 {
                     _mainViewModel.Settings.FrameGenMode = value;
+                    // Both smooth the picture by showing generated frames; two of them at once would
+                    // multiply each other's output, so one or the other.
+                    if (value != 0 && _mainViewModel.Settings.AmdFluidMotion)
+                    {
+                        _mainViewModel.Settings.AmdFluidMotion = false;
+                        OnPropertyChanged(nameof(AmdFluidMotion));
+                        OnPropertyChanged(nameof(AmdNote));
+                    }
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsFrameGenTargetEnabled));
                     OnPropertyChanged(nameof(FrameGenNote));
@@ -281,6 +304,152 @@ namespace AstroHybrid.App.ViewModels
             }
         }
 
+        // ---- AMD Radeon features -------------------------------------------------------------
+        // Unlike DLSS and frame generation there is no game-side switch here: Fluid Motion Frames
+        // and Radeon Super Resolution belong to AMD Software (Adrenalin) and are switched on per
+        // game there. What the launcher can do is put the game in the state they need, so that is
+        // what these options change.
+
+        public bool AmdFluidMotion
+        {
+            get => _mainViewModel.Settings.AmdFluidMotion;
+            set
+            {
+                if (_mainViewModel.Settings.AmdFluidMotion == value) return;
+                _mainViewModel.Settings.AmdFluidMotion = value;
+                if (value)
+                {
+                    // AMD's requirements: a fullscreen window, VSync off, and the game's own cap off
+                    // (the driver generates frames against whatever the game presents).
+                    _mainViewModel.Settings.Fullscreen = true;
+                    _mainViewModel.Settings.VSync = false;
+                    _mainViewModel.Settings.Fps = 6;
+                    // Two frame generators at once make no sense.
+                    if (_mainViewModel.Settings.FrameGenMode != 0)
+                        _mainViewModel.Settings.FrameGenMode = 0;
+                }
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Fullscreen));
+                OnPropertyChanged(nameof(VSync));
+                OnPropertyChanged(nameof(FpsIndex));
+                OnPropertyChanged(nameof(AmdNote));
+                OnPropertyChanged(nameof(FrameGenIndex));
+                OnPropertyChanged(nameof(FrameGenNote));
+                OnPropertyChanged(nameof(IsFpsLimitEnabled));
+                OnPropertyChanged(nameof(IsVSyncAvailable));
+                OnPropertyChanged(nameof(IsFrameGenAvailable));
+                _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.Settings));
+            }
+        }
+
+        public bool AmdSuperResolution
+        {
+            get => _mainViewModel.Settings.AmdSuperResolution;
+            set
+            {
+                if (_mainViewModel.Settings.AmdSuperResolution == value) return;
+                _mainViewModel.Settings.AmdSuperResolution = value;
+                if (value)
+                {
+                    // RSR upscales whatever the game renders up to the screen's resolution, so the
+                    // window is no longer fixed at the screen's size.
+                    _mainViewModel.Settings.Fullscreen = false;
+                    // Double upscaling: hand the job to one of them.
+                    if (_mainViewModel.Settings.Upscale != 0)
+                        _mainViewModel.Settings.Upscale = 0;
+                }
+                OnPropertyChanged();
+                // Fullscreen, VSync and the limit may have been changed for Fluid Motion Frames.
+                OnPropertyChanged(nameof(Fullscreen));
+                OnPropertyChanged(nameof(VSync));
+                OnPropertyChanged(nameof(FpsIndex));
+                OnPropertyChanged(nameof(UpscaleIndex));
+                OnPropertyChanged(nameof(AmdRenderSizeIndex));
+                OnPropertyChanged(nameof(AmdRenderSizeEnabled));
+                OnPropertyChanged(nameof(AmdNote));
+                OnPropertyChanged(nameof(IsFrameGenAvailable));
+                _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.Settings));
+            }
+        }
+
+        // The resolution the game renders at while RSR upscales it to the screen.
+        public string[] AmdRenderSizeLabels => new[]
+        {
+            "1280 x 720 (upscaled)", "1600 x 900 (upscaled)", "1920 x 1080 (upscaled)",
+            "Screen resolution (RSR does nothing)"
+        };
+
+        public int AmdRenderSizeIndex
+        {
+            get => _mainViewModel.Settings.AmdRenderSize;
+            set
+            {
+                if (_mainViewModel.Settings.AmdRenderSize == value) return;
+                _mainViewModel.Settings.AmdRenderSize = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AmdRenderSizeEnabled));
+                OnPropertyChanged(nameof(AmdNote));
+                _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.Settings));
+            }
+        }
+
+        // RSR only makes sense with a render resolution below the screen's.
+        public bool AmdRenderSizeEnabled => AmdSuperResolution && AmdRenderSizeIndex < 3;
+
+        // What the card header says: which Radeon card was found and whether AMD Software covers it.
+        public string AmdFeaturesNote
+        {
+            get
+            {
+                var hardware = _mainViewModel.HardwareInfo;
+                if (hardware == null) return "";
+
+                var name = hardware.GpuName;
+                if (hardware.SupportsAmdSuperResolution)
+                    return $"{name}: Fluid Motion Frames and Radeon Super Resolution - switched on for AstroBot in AMD Software.";
+                if (hardware.Vendor == "AMD")
+                    return $"{name}: AMD Software's frame generation and upscaling need a Radeon RX 6000 or newer; this card gets neither.";
+                return $"No Radeon card in use ({name}). These options only apply to AMD cards - the NVIDIA features above are the equivalent here.";
+            }
+        }
+
+        // Plain-language summary of what the two switches do, and what they do not fix.
+        public string AmdNote
+        {
+            get
+            {
+                var hardware = _mainViewModel.HardwareInfo;
+                if (hardware == null || !hardware.SupportsAmdSuperResolution)
+                    return "Driver-level features: on an AMD card, switch them on in AMD Software (Adrenalin) for AstroBot; the launcher puts the game in the state they need.";
+
+                var parts = new List<string>();
+
+                if (AmdFluidMotion)
+                {
+                    parts.Add("Game started fullscreen with VSync off and no FPS limit, which is what Fluid Motion Frames needs. "
+                              + "AMD recommends about 55 FPS at 1080p before it is switched on and this port renders about 30, so "
+                              + "expect stutter and extra input lag rather than a smooth 60.");
+                }
+                if (AmdSuperResolution)
+                {
+                    var heights = new[] { "720p", "900p", "1080p", "your screen's resolution" };
+                    var height = heights[Math.Min(Math.Max(AmdRenderSizeIndex, 0), 3)];
+                    parts.Add(AmdRenderSizeIndex >= 3
+                        ? "Radeon Super Resolution does nothing at the screen's own resolution: pick a lower one to give it something to upscale."
+                        : $"The game renders at {height} and AMD Software upscales it to the screen (Radeon Super Resolution, set to borderless fullscreen for AstroBot).");
+                }
+                if (AmdFluidMotion && AmdSuperResolution)
+                {
+                    parts.Add("Note: Fluid Motion Frames wants a fullscreen game and Radeon Super Resolution wants a window, "
+                              + "so the game is started windowed and only upscaling is set up for you. Pick one for a clean result.");
+                }
+                if (parts.Count == 0)
+                    parts.Add("Both off. Turn them on for the driver-level smoothing and upscaling AMD offers instead of DLSS and frame generation.");
+
+                return string.Join(" ", parts);
+            }
+        }
+
         // Performance Overlay
         public string[] OverlayLabels => new[] { "Off (F2 shows it)", "FPS only", "FPS + CPU, GPU, VRAM, RAM", "Everything (all stats)" };
 
@@ -306,6 +475,8 @@ namespace AstroHybrid.App.ViewModels
         public bool SupportsDlss => _mainViewModel.HardwareInfo?.SupportsDlss == true;
 
         public bool SupportsReflex => _mainViewModel.HardwareInfo?.SupportsReflex == true;
+
+        public bool SupportsAmd => _mainViewModel.HardwareInfo?.SupportsAmdSuperResolution == true;
 
         public string FrameGenNote
         {

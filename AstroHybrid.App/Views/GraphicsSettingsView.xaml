@@ -180,6 +180,42 @@
                 </StackPanel>
             </Border>
 
+            <!-- AMD features. Fluid Motion Frames and Radeon Super Resolution are AMD Software
+                 (Adrenalin) features, so the card explains which switch to flip and sets the game up
+                 for it: fullscreen with VSync off for the first, a render resolution below the screen
+                 for the second. Enabled only on a Radeon card AMD supports. -->
+            <Border Style="{StaticResource CardStyle}" IsEnabled="{Binding SupportsAmd}">
+                <StackPanel>
+                    <TextBlock Text="AMD Radeon features" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock Text="{Binding AmdFeaturesNote}" Style="{StaticResource MutedTextStyle}"
+                               TextWrapping="Wrap" Margin="0,0,0,14"/>
+
+                    <CheckBox Content="AMD Fluid Motion Frames (driver frame generation)"
+                              IsChecked="{Binding AmdFluidMotion}"
+                              Style="{StaticResource ModernCheckBoxStyle}"/>
+
+                    <CheckBox Content="Radeon Super Resolution (driver upscaling)"
+                              IsChecked="{Binding AmdSuperResolution}"
+                              Style="{StaticResource ModernCheckBoxStyle}" Margin="0,10,0,0"/>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Style="{StaticResource RowLabelStyle}" Text="Render resolution"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding AmdRenderSizeLabels}"
+                                  SelectedIndex="{Binding AmdRenderSizeIndex}"
+                                  Style="{StaticResource ModernComboBoxStyle}" Width="380"
+                                  IsEnabled="{Binding AmdRenderSizeEnabled}"/>
+                    </Grid>
+
+                    <TextBlock Text="{Binding AmdNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
+                </StackPanel>
+            </Border>
+
             <!-- Overlay -->
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>

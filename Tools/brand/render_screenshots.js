@@ -307,10 +307,15 @@ function nav(active) {
   return s;
 }
 
-function actionBar() {
+function actionBar({ scrollbar = false } = {}) {
   const top = H - 72;
   let s = rect(SIDEBAR + 1, top, W - SIDEBAR - 1, H - top, { fill: "#090C12", opacity: 0.66 });
   s += `<line x1="${SIDEBAR + 1}" y1="${top}" x2="${W}" y2="${top}" stroke="${C.borderSubtle}"/>`;
+  // A page taller than the window shows the app's scroll bar in the content area.
+  if (scrollbar) {
+    s += rect(W - 9, 46, 4, H - 46 - 76, { fill: C.surfaceLight, r: 2 });
+    s += rect(W - 9, 120, 4, 300, { fill: C.borderStrong, r: 2 });
+  }
   s += button(W - 24 - 150, top + 14, 150, 44, "Play", "primary");
   return s;
 }
@@ -423,6 +428,27 @@ function sceneGraphics() {
   s += `<line x1="${x + 18}" y1="${cy + 106}" x2="${x + width - 18}" y2="${cy + 106}" stroke="${C.borderSubtle}"/>`;
   s += row(x + 18, cy + 118, "Upscaling", combo(x + 168, cy + 118, 380, "NVIDIA DLSS - sharper image"));
   s += row(x + 18, cy + 166, "Frame generation", combo(x + 168, cy + 166, 380, "Auto - reach target (recommended)", { h: 34 }));
+
+  // AMD Radeon features, right below the NVIDIA card and scrollable to, the way the page shows it.
+  cy += 230;
+  s += card(x, cy, width, 198);
+  s += sectionTitle(x + 18, cy + 28, "AMD Radeon features");
+  s += note(x + 18, cy + 46, "No Radeon card in use (RTX 5060). These options only apply to AMD cards.", { max: 600 });
+  s += checkbox(x + 18, cy + 62, "AMD Fluid Motion Frames (driver frame generation)", false, { disabled: true });
+  s += checkbox(x + 18, cy + 96, "Radeon Super Resolution (driver upscaling)", false, { disabled: true });
+  s += row(x + 18, cy + 128, "Render resolution", combo(x + 168, cy + 128, 380, "Screen resolution (RSR does nothing)", { h: 34, disabled: true }));
+  s += note(x + 18, cy + 178, "Driver-level features: switch them on in AMD Software for AstroBot.", { max: 600 });
+  return s;
+}
+
+// The Graphics page scrolled to its end: the AMD card sits below the NVIDIA one, and the page is
+// taller than the window, so this is what someone sees after scrolling down to it.
+function sceneGraphicsScrolled() {
+  const svg = sceneGraphics();
+  const x = SIDEBAR + 24, y = 54, width = W - SIDEBAR - 48;
+  const shift = 284;
+  let s = pageHeader(x, y - shift, "GRAPHICS", "Display and rendering", "Changes apply the next time you press Play.");
+  s += `<g transform="translate(0,${-shift})">${svg}</g>`;
   return s;
 }
 
@@ -595,7 +621,7 @@ for (const v of expected) {
 
 const SCENES = [
   ["app-home", "home", sceneHome],
-  ["app-graphics", "graphics", sceneGraphics],
+  ["app-graphics", "graphics", sceneGraphicsScrolled],
   ["app-controller", "controller", sceneController],
   ["app-advanced", "advanced", sceneAdvanced],
   ["app-installation", "installation", sceneInstallation],
@@ -607,7 +633,7 @@ for (const [name, navKey, scene] of SCENES) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
     ${chrome({ logo: logoB64 })}
     ${nav(navKey)}
-    <g clip-path="url(#body)">${scene()}${actionBar()}</g>
+    <g clip-path="url(#body)">${scene()}${actionBar({ scrollbar: navKey === "graphics" })}</g>
   </svg>`;
 
   const png = new Resvg(svg, {

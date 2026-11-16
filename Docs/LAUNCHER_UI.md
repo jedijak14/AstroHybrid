@@ -142,3 +142,40 @@ top of a near-black window, which looks broken rather than stock.
 Home for F2, Ctrl+F2, Shift+F2 and F11. Only bindings that exist in the game
 patches belong here -- an earlier draft listed F12 for screenshots, which the
 port does not implement.
+
+## AMD Radeon features card
+
+The Graphics page has a second feature card, `AMD Radeon features`, directly
+under `NVIDIA RTX features` and built the same way (section header, muted
+detected-hardware line, rows, note).
+
+**These are driver features, not game features.** Fluid Motion Frames (AFMF)
+and Radeon Super Resolution (RSR) live in AMD Software: Adrenalin and are turned
+on there, per game. Nothing in the port can enable them, so the card does the
+two things it can:
+
+1. it says which Radeon card was found and whether AMD's support list covers it
+   (`HardwareDetector`: `RadeonSeries`, parsed from the four-digit model in the
+   adapter name - `RX 7900 XTX` -> 7900, `RX 6600M` -> 6600; `RX 580` and Vega
+   are deliberately not matched, so they read as unsupported);
+2. it puts the game in the state the driver needs, and says so in the note.
+
+| Control | Effect on the settings | Why |
+| --- | --- | --- |
+| `AMD Fluid Motion Frames` | `Fullscreen = true`, `VSync = false`, `Fps = 6` (No limit); turns NVIDIA frame generation off | AFMF needs fullscreen with VSync off; the driver interpolates from whatever the game presents, so a cap is counter-productive. Two frame generators cannot both be right. |
+| `Radeon Super Resolution` | `Fullscreen = false`, `AmdRenderSize` applied, turns DLSS off | RSR scales from the game's render resolution up to the screen, which needs a window, not an exclusive display. Stacking two upscalers is what AMD warns against. |
+| `Render resolution` | 720p / 900p / 1080p, or the screen's own resolution (RSR then does nothing) | RSR only has work to do below the screen's resolution. Disabled unless RSR is on. |
+
+Both settings are stored separately (`amdfmf`, `amdrsr`, `amdsize`) so turning
+one off does not disturb the other, and both are skipped at launch on a card
+`HardwareDetector` does not rate for them. `ApplyBestSettings` leaves them off -
+at 30 FPS the port is far below the rate AFMF is meant for, so it stays the
+user's choice - but pre-picks a render resolution for RSR.
+
+The section is enabled only on a supported Radeon card (`SupportsAmd`) and
+`AmdFeaturesNote` explains which of the three states applies: supported card,
+unsupported AMD card, or no AMD card in the machine.
+
+`Tools/brand/render_screenshots.js` shows the card greyed out on the NVIDIA
+machine the screenshots are taken on, and `app-graphics.png` is rendered
+scrolled down so the card is visible.

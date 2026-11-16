@@ -117,8 +117,7 @@ buys you *smoother output at the same game speed* through Frame Generation, not 
 **AMD cards specifically.** None of the NVIDIA features apply, and the launcher says so instead of half-enabling
 them: FSR is not implemented (`HardwareDetector.cs`, "AMD FSR support would go here"), so the
 Upscaling and Frame generation menus stay greyed out (`SupportsDlss` is false without an RTX card) and **Tune
-for this PC** sets resolution, fullscreen and the 30 FPS cap and nothing else. AMD's own Fluid Motion Frames is a
-driver feature and is not wired up here either; do not turn it on expecting the same thing as Frame Generation.
+for this PC** sets resolution, fullscreen and the 30 FPS cap and nothing else.
 
 What that means in practice: a Radeon card plays the way an RTX 20 or 30 card does, at the game's own rate, with
 no smoothing on top. Because the frame is CPU-limited at 30-34 FPS, an RX 6600 and an RX 7900 XTX should land in
@@ -126,6 +125,35 @@ much the same place, so there is little reason to buy up for this port. Detectio
 `Pro W`, `FirePro`, `Radeon Pro`); "Radeon(TM) Graphics", Vega 8 and the 700M/800M parts are read as integrated
 graphics. All of this is *est.*: the project has never run on an AMD card, and the only Vulkan driver tested is
 NVIDIA 32.0.16.2101.
+
+### AMD features: what the Radeon card gets instead
+
+The Graphics page has an **AMD Radeon features** card next to the NVIDIA one. It covers the two things AMD offers
+that matter for a 30 FPS port, both of them driver features rather than game features, so the launcher cannot
+switch them on: it puts the game in the state they need and tells you which switch to flip in AMD Software
+(Adrenalin) for `AstroBot.exe`.
+
+| Feature | What it does | What it needs | Launcher sets | You switch on |
+|---|---|---|---|---|
+| **AMD Fluid Motion Frames** (AFMF) | Driver frame generation, like Frame Generation but in the driver: interpolates extra frames in any DX11/DX12/Vulkan/OpenGL game, so no game support is needed | Radeon RX 6000 or 7000 desktop; Adrenalin 25.3.1+; Vulkan is supported from AFMF 2 on | Fullscreen, VSync off, no FPS cap (30 / 60 x 2 = 120 on screen) | Adrenalin **Gaming → Games → AstroBot → Fluid Motion Frames** |
+| **Radeon Super Resolution** (RSR) | Driver upscaling: FSR1 in the driver, scaling whatever the game renders up to the screen | Radeon RX 5000 or newer; the game must render below the screen's resolution | A render resolution below the screen (720p / 900p / 1080p), windowed | Adrenalin **Gaming → Games → AstroBot → Radeon Super Resolution → Enabled - Borderless Fullscreen** |
+| **Radeon Anti-Lag** | Shortens the CPU→GPU queue, AMD's answer to Reflex | Radeon RX 5000 or newer | nothing | Adrenalin, per game |
+| **Image Sharpening** | Sharpens the upscaled picture | any Radeon | nothing | Adrenalin, per game |
+
+**Read the catch before turning AFMF on.** AMD's own guidance is a base rate of about 55 FPS at 1080p and 70 FPS at
+1440p, because driver interpolation has no motion vectors to work with and the lower the real rate, the more it
+smears and lags. This port renders **30-34 FPS**. AFMF does not raise the game's own rate, so a 30 FPS scene becomes
+60 *shown* frames with 30 FPS input, and the extra lag is the part you feel. It is worth a try; it is not the fix
+that Frame Generation is on an RTX 40/50 card, and no one has reported trying it on this port.
+
+Two more honest limits: the RX 6000 generation only gets AFMF in **exclusive** fullscreen while RX 7000 also
+accepts borderless, and this port's window mode is SDL's fullscreen desktop window, so on a 6000 card AFMF may
+simply show *Inactive* in the Adrenalin overlay. And AFMF needs VSync off, which is why the launcher turns the
+VSync option off when you tick it: a FreeSync display is the better answer for tearing there.
+
+The AMD card is greyed out on an NVIDIA machine, and turning on DLSS or NVIDIA frame generation turns the AMD
+equivalents off (and the reverse), since stacking two upscalers or two frame generators is not something either
+vendor supports. Everything here is untested on AMD hardware, like the rest of the AMD rows above.
 
 One **reported** machine sits outside this table: an RTX 4050 laptop with an i7-13700HX read 15-16 FPS on the
 title screen with heavy queue lag in game (AnyPS5 discussion #11917). A 4050 is the bottom of the RTX 40 range
@@ -165,7 +193,8 @@ is one thread committing ~4,900 draws and waiting on CPU-GPU syncs (roughly 800 
 | Auto multiplier to a target | Frame Generation | picks 2x/3x/4x in game every half second |
 
 Frame Generation runs only while the window is focused, and must not be combined with NVIDIA Smooth Motion.
-The Streamline and DLSS runtime files are yours to supply (see the section above).
+The Streamline and DLSS runtime files are yours to supply (see the section above). The AMD equivalents are in
+[AMD features](#amd-features-what-the-radeon-card-gets-instead) above.
 
 ### Reading the "on screen" column
 

@@ -287,6 +287,33 @@ namespace AstroHybrid.App.Services
                 env["ASTROHYBRID_FPS_LIMIT"] = limit == 0 ? "unlimited" : limit.ToString();
             }
 
+            // AMD Radeon features. Fluid Motion Frames and Radeon Super Resolution belong to AMD
+            // Software (Adrenalin) and are switched on there, per game; the launcher can only start
+            // the game in the state they need, which is what these blocks do. Both are skipped on a
+            // card AMD's support list does not cover.
+            if (settings.AmdFluidMotion && hardware?.SupportsAmdFluidMotion == true)
+            {
+                // A fullscreen window, VSync off (the FIFO present mode would hold back the frames the
+                // driver generates) and no cap of ours: the game presents as fast as it can and the
+                // driver interpolates from that.
+                env["KYTY_GPU_FULLSCREEN"] = "1";
+                env.Remove("KYTY_GPU_PRESENT_MODE");
+                env["ASTROHYBRID_FPS_LIMIT"] = "unlimited";
+            }
+
+            if (settings.AmdSuperResolution && hardware?.SupportsAmdSuperResolution == true
+                && settings.AmdRenderSize >= 0 && settings.AmdRenderSize < 3)
+            {
+                // Radeon Super Resolution takes whatever the game renders and scales it to the screen.
+                // It needs a windowed (borderless fullscreen) game: a real fullscreen mode takes the
+                // display over and the driver cannot scale it.
+                var rsrSize = new[,] { { 1280, 720 }, { 1600, 900 }, { 1920, 1080 } };
+                var index = settings.AmdRenderSize;
+                env["KYTY_GPU_WIDTH"] = rsrSize[index, 0].ToString();
+                env["KYTY_GPU_HEIGHT"] = rsrSize[index, 1].ToString();
+                env["KYTY_GPU_FULLSCREEN"] = "0";
+            }
+
             // NVIDIA Reflex
             if (settings.LowLatency)
             {
