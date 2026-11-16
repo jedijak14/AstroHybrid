@@ -78,19 +78,10 @@
 
                     <!-- Logo plate -->
                     <Border Grid.Column="1" Width="176" Height="176" CornerRadius="18" VerticalAlignment="Center"
-                            Background="#14000000" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1">
-                        <Grid>
-                            <Ellipse Width="150" Height="150" Opacity="0.16">
-                                <Ellipse.Fill>
-                                    <RadialGradientBrush>
-                                        <GradientStop Color="#FF8B7CFF" Offset="0"/>
-                                        <GradientStop Color="#008B7CFF" Offset="1"/>
-                                    </RadialGradientBrush>
-                                </Ellipse.Fill>
-                            </Ellipse>
-                            <Image Source="/Resources/astrohybrid.png" Width="120" Height="120"
-                                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                        </Grid>
+                            Background="{StaticResource SurfaceLightBrush}"
+                            BorderBrush="{StaticResource BorderColor}" BorderThickness="1">
+                        <Image Source="/Resources/astrohybrid-mark.png" Width="124" Height="124"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
                     </Border>
                 </Grid>
             </Border>

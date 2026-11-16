@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """Generate the AstroHybrid app icon (PNG + multi-resolution ICO).
 
-The mark is drawn from scratch: a rounded-square badge in the launcher's own
-indigo/violet gradient carrying a four-point sparkle, with a thin amber orbit
-ring and a small planet crossing it. Everything is supersampled so the curves
-stay clean at 16 px.
+The mark is a flat, two-colour emblem: a warm off-white planet with a violet
+ring, on a near-black rounded tile, plus a small sparkle. Solid fills only -
+no gradients, glow or shadow - so it stays crisp at 16 px and does not look
+like generated artwork.
 
 Usage:
     python3 Tools/brand/make_logo.py
 Writes:
-    AstroHybrid.App/Resources/astrohybrid.png   (512 px, used by the UI)
-    AstroHybrid.App/Resources/astrohybrid.ico   (16-256 px, window/exe icon)
-    Docs/images/astrohybrid-logo.png            (documentation preview)
+    AstroHybrid.App/Resources/astrohybrid.png        (512 px, tile - exe, docs)
+    AstroHybrid.App/Resources/astrohybrid-mark.png   (512 px, transparent - UI)
+    AstroHybrid.App/Resources/astrohybrid.ico        (16-256 px, window/exe icon)
+    Docs/images/astrohybrid-logo.png                 (documentation preview)
+
+The transparent "mark" exists because the tile is the same near-black as the
+launcher's sidebar and hero plate, so a tiled image would disappear there.
 """
 
 from __future__ import annotations
@@ -19,143 +23,120 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
 APP_RES = ROOT / "AstroHybrid.App" / "Resources"
 DOC_IMAGES = ROOT / "Docs" / "images"
 
-S = 2048  # master canvas (downscaled from here)
+S = 2048  # master canvas, downsampled from here
 
-BADGE_TOP = (124, 106, 255)
-BADGE_BOTTOM = (58, 34, 168)
-GLOW = (168, 138, 255)
-AMBER = (255, 196, 92)
-WHITE = (255, 255, 255)
+TILE = (14, 18, 26)          # #0E121A
+PLANET = (246, 242, 227)     # #F6F2E3 warm off-white
+RING = (139, 124, 255)       # #8B7CFF violet
+SPARKLE = (169, 155, 255)    # #A99BFF
 
-
-def vertical_gradient(size: int, top: tuple[int, int, int], bottom: tuple[int, int, int]) -> Image.Image:
-    grad = Image.new("RGB", (1, size))
-    px = grad.load()
-    for y in range(size):
-        t = y / max(size - 1, 1)
-        # Ease the ramp so the upper half stays lighter, like real lighting.
-        t = t ** 0.85
-        px[0, y] = tuple(round(top[i] + (bottom[i] - top[i]) * t) for i in range(3))
-    return grad.resize((size, size), Image.BILINEAR)
+TILT = -18.0                 # degrees, ring tilt
 
 
-def sparkle(
-    cx: float,
-    cy: float,
-    radius: float,
-    waist: float,
-    radius_y: float | None = None,
-) -> list[tuple[float, float]]:
-    """Four-point star with concave sides (waist = 0..1, smaller = sharper).
-
-    radius_y scales the vertical points independently so the mark can be
-    balanced (equal optical weight above and below) instead of elongated.
-    """
-    ry = radius if radius_y is None else radius_y
-    pts: list[tuple[float, float]] = []
+def sparkle(cx: float, cy: float, r: float, waist: float = 0.30) -> list[tuple[float, float]]:
+    """Four-point star with concave sides."""
+    pts = []
     for i in range(8):
         angle = -math.pi / 2 + i * math.pi / 4
-        r = 1.0 if i % 2 == 0 else waist
-        pts.append((cx + r * radius * math.cos(angle), cy + r * ry * math.sin(angle)))
+        k = 1.0 if i % 2 == 0 else waist
+        pts.append((cx + r * k * math.cos(angle), cy + r * k * math.sin(angle)))
     return pts
 
 
-def draw_master(size: int = S) -> Image.Image:
+def ring_band(size: int, *, lower_half_only: bool) -> Image.Image:
+    """The ring as a flat band, tilted, optionally only its front (lower) half."""
+    rx, ry, thick = size * 0.355, size * 0.112, size * 0.062
+    cx = cy = size / 2
+
+    layer = Image.new("L", (size, size), 0)
+    d = ImageDraw.Draw(layer)
+    d.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=255)
+    # Inner cut-out leaves a constant-width band.
+    d.ellipse((cx - rx + thick, cy - ry + thick, cx + rx - thick, cy + ry - thick), fill=0)
+
+    if lower_half_only:
+        keep = Image.new("L", (size, size), 0)
+        ImageDraw.Draw(keep).rectangle((0, cy - ry * 0.15, size, size), fill=255)
+        layer = Image.composite(layer, Image.new("L", (size, size), 0), keep)
+
+    return layer.rotate(TILT, resample=Image.BICUBIC, center=(cx, cy))
+
+
+def draw_master(size: int = S, *, tile: bool = True) -> Image.Image:
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
 
-    # --- badge -----------------------------------------------------------
-    inset = round(size * 0.045)
-    radius = round(size * 0.225)
-    box = (inset, inset, size - inset, size - inset)
+    # --- tile ------------------------------------------------------------
+    if tile:
+        inset = round(size * 0.03)
+        radius = round(size * 0.215)
+        ImageDraw.Draw(img).rounded_rectangle(
+            (inset, inset, size - inset, size - inset), radius=radius, fill=TILE + (255,)
+        )
 
-    mask = Image.new("L", (size, size), 0)
-    ImageDraw.Draw(mask).rounded_rectangle(box, radius=radius, fill=255)
+    # --- ring behind the planet, then planet, then the front of the ring --
+    img.alpha_composite(Image.merge("RGBA", [Image.new("L", (size, size), c) for c in RING]
+                                    + [ring_band(size, lower_half_only=False)]))
 
-    badge = vertical_gradient(size, BADGE_TOP, BADGE_BOTTOM).convert("RGBA")
-    badge.putalpha(mask)
-    img.alpha_composite(badge)
+    cx = cy = size / 2
+    pr = size * 0.232
+    ImageDraw.Draw(img).ellipse((cx - pr, cy - pr, cx + pr, cy + pr), fill=PLANET + (255,))
 
-    # Soft light from the upper left, clipped to the badge.
-    glow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    gd = ImageDraw.Draw(glow)
-    gd.ellipse(
-        (
-            -size * 0.15,
-            -size * 0.35,
-            size * 0.95,
-            size * 0.72,
-        ),
-        fill=GLOW + (86,),
-    )
-    glow = glow.filter(ImageFilter.GaussianBlur(size * 0.09))
-    glow.putalpha(Image.composite(glow.getchannel("A"), Image.new("L", (size, size), 0), mask))
-    img.alpha_composite(glow)
-
-    # Vignette towards the bottom right keeps the badge from looking flat.
-    shade = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shade)
-    sd.ellipse((size * 0.22, 0.42 * size, size * 1.30, size * 1.40), fill=(20, 9, 58, 104))
-    shade = shade.filter(ImageFilter.GaussianBlur(size * 0.11))
-    shade.putalpha(Image.composite(shade.getchannel("A"), Image.new("L", (size, size), 0), mask))
-    img.alpha_composite(shade)
-
-    # Inner rim light.
-    rim = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    rd = ImageDraw.Draw(rim)
-    rd.rounded_rectangle(box, radius=radius, outline=WHITE + (56,), width=max(2, round(size * 0.008)))
-    rd.rounded_rectangle(
-        (inset + size * 0.012, inset + size * 0.012, size - inset - size * 0.012, size - inset - size * 0.012),
-        radius=round(radius * 0.94),
-        outline=(255, 255, 255, 22),
-        width=max(1, round(size * 0.003)),
-    )
-    img.alpha_composite(rim)
-
-    # --- orbit -----------------------------------------------------------
-    cx, cy = size * 0.5, size * 0.52
-    orbit = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    od = ImageDraw.Draw(orbit)
-    ring_r = size * 0.315
-    ring_w = max(3, round(size * 0.014))
-    od.ellipse(
-        (cx - ring_r, cy - ring_r * 0.62, cx + ring_r, cy + ring_r * 0.62),
-        outline=AMBER + (205,),
-        width=ring_w,
-    )
-    # Fade the back half of the ring so it reads as passing behind the star.
-    fade = Image.new("L", (size, size), 0)
-    ImageDraw.Draw(fade).rectangle((0, 0, size, cy), fill=255)
-    fade = fade.filter(ImageFilter.GaussianBlur(size * 0.02))
-    orbit.putalpha(Image.composite(orbit.getchannel("A"), Image.new("L", (size, size), 64), fade))
-    orbit = orbit.rotate(-16, resample=Image.BICUBIC, center=(cx, cy))
-    img.alpha_composite(orbit)
+    img.alpha_composite(Image.merge("RGBA", [Image.new("L", (size, size), c) for c in RING]
+                                    + [ring_band(size, lower_half_only=True)]))
 
     # --- sparkle ---------------------------------------------------------
-    star = sparkle(cx, cy * 0.98, size * 0.315, 0.42, radius_y=size * 0.295)
-    sdw = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    ImageDraw.Draw(sdw).polygon(star, fill=(24, 10, 70, 120))
-    sdw = sdw.filter(ImageFilter.GaussianBlur(size * 0.022)).transform(
-        (size, size), Image.AFFINE, (1, 0, 0, 0, 1, -size * 0.012)
+    ImageDraw.Draw(img).polygon(
+        sparkle(size * 0.785, size * 0.235, size * 0.066, 0.28), fill=SPARKLE + (255,)
     )
-    img.alpha_composite(sdw)
-    ImageDraw.Draw(img).polygon(star, fill=WHITE + (255,))
 
-    # A smaller companion sparkle, upper right, tucked behind the ring.
-    mini = sparkle(size * 0.755, size * 0.275, size * 0.094, 0.38, radius_y=size * 0.088)
-    ImageDraw.Draw(img).polygon(mini, fill=WHITE + (215,))
+    return img
 
+
+def small_simplified(size: int) -> Image.Image:
+    """A chunkier drawing for the 16-24 px frames.
+
+    At that size the ring band and the sparkle collapse into noise, so the small
+    frames thicken the ring, drop the sparkle and tighten the margins.
+    """
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    inset = round(size * 0.015)
+    ImageDraw.Draw(img).rounded_rectangle(
+        (inset, inset, size - inset, size - inset),
+        radius=round(size * 0.22), fill=TILE + (255,),
+    )
+    cx = cy = size / 2
+    pr = size * 0.255
+    thick = max(1.5, size * 0.085)
+
+    def band(lower_only: bool) -> Image.Image:
+        rx, ry = size * 0.40, size * 0.135
+        layer = Image.new("L", (size, size), 0)
+        d = ImageDraw.Draw(layer)
+        d.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=255)
+        d.ellipse((cx - rx + thick, cy - ry + thick, cx + rx - thick, cy + ry - thick), fill=0)
+        if lower_only:
+            keep = Image.new("L", (size, size), 0)
+            ImageDraw.Draw(keep).rectangle((0, cy - ry * 0.15, size, size), fill=255)
+            layer = Image.composite(layer, Image.new("L", (size, size), 0), keep)
+        return layer.rotate(TILT, resample=Image.BICUBIC, center=(cx, cy))
+
+    img.alpha_composite(Image.merge("RGBA", [Image.new("L", (size, size), c) for c in RING] + [band(False)]))
+    ImageDraw.Draw(img).ellipse((cx - pr, cy - pr, cx + pr, cy + pr), fill=PLANET + (255,))
+    img.alpha_composite(Image.merge("RGBA", [Image.new("L", (size, size), c) for c in RING] + [band(True)]))
     return img
 
 
 def build_ico(master: Image.Image, path: Path) -> None:
     sizes = [16, 24, 32, 48, 64, 128, 256]
-    frames = [master.resize((s, s), Image.LANCZOS) for s in sizes]
+    frames = []
+    for s in sizes:
+        frames.append(small_simplified(s) if s <= 24 else master.resize((s, s), Image.LANCZOS))
     frames[-1].save(path, format="ICO", sizes=[(s, s) for s in sizes], bitmap_format="png")
 
 
@@ -164,20 +145,25 @@ def main() -> None:
     DOC_IMAGES.mkdir(parents=True, exist_ok=True)
 
     master = draw_master()
+    mark = draw_master(tile=False)
 
-    png = master.resize((512, 512), Image.LANCZOS)
-    png.save(APP_RES / "astrohybrid.png", format="PNG", optimize=True)
-
+    master.resize((512, 512), Image.LANCZOS).save(APP_RES / "astrohybrid.png", format="PNG", optimize=True)
+    mark.resize((512, 512), Image.LANCZOS).save(APP_RES / "astrohybrid-mark.png", format="PNG", optimize=True)
     build_ico(master, APP_RES / "astrohybrid.ico")
 
-    preview = Image.new("RGBA", (1500, 600), (11, 14, 20, 255))
-    preview.alpha_composite(master.resize((512, 512), Image.LANCZOS), (60, 44))
-    for i, s in enumerate([256, 128, 64, 48, 32, 16]):
-        x = 660 + sum([0] + [prev + 28 for prev in [256, 128, 64, 48, 32][:i]])
-        preview.alpha_composite(master.resize((s, s), Image.LANCZOS), (x, 44 + 512 - s))
+    # Preview sheet: the mark large, then the sizes a Windows shell actually uses.
+    preview = Image.new("RGBA", (1240, 520), (11, 14, 20, 255))
+    preview.alpha_composite(master.resize((440, 440), Image.LANCZOS), (50, 40))
+    preview.alpha_composite(mark.resize((300, 300), Image.LANCZOS), (540, 110))
+    x, base = 880, 40 + 440
+    for s in (128, 64, 48, 32, 24, 16):
+        frame = small_simplified(s) if s <= 24 else master.resize((s, s), Image.LANCZOS)
+        preview.alpha_composite(frame, (x, base - s))
+        x += s + 18
     preview.save(DOC_IMAGES / "astrohybrid-logo.png", format="PNG", optimize=True)
 
     print("wrote", APP_RES / "astrohybrid.png")
+    print("wrote", APP_RES / "astrohybrid-mark.png")
     print("wrote", APP_RES / "astrohybrid.ico")
     print("wrote", DOC_IMAGES / "astrohybrid-logo.png")
 

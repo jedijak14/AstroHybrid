@@ -106,7 +106,7 @@
                     </Grid>
 
                     <TextBlock Text="{Binding FpsLimitNote}" Style="{StaticResource SettingsDescriptionStyle}"/>
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap"
+                    <TextBlock Style="{StaticResource SettingsDescriptionStyle}"
                                Text="Ctrl+F2 cycles the limit while the game is running."/>
                 </StackPanel>
             </Border>
@@ -198,9 +198,8 @@
                                   Style="{StaticResource ModernComboBoxStyle}" Width="380"/>
                     </Grid>
 
-                    <TextBlock Style="{StaticResource MutedTextStyle}" Margin="0,10,0,0" TextWrapping="Wrap">
-                        In game: F2 shows the overlay, Ctrl+F2 changes the limit, F11 or Alt+Enter toggles fullscreen.
-                    </TextBlock>
+                    <TextBlock Style="{StaticResource SettingsDescriptionStyle}"
+                               Text="In game: F2 shows the overlay, Ctrl+F2 changes the limit, F11 or Alt+Enter toggles fullscreen."/>
                 </StackPanel>
             </Border>
 
