@@ -5,6 +5,11 @@ script injects a known fault of each kind into a copy of the sources, runs the c
 failure. If someone loosens a check, this test fails instead of the checker quietly passing everything.
 
 Every fault is applied to a temporary copy of the tree; the repository is never modified.
+
+A skip is contagious: if the checker cannot run because the C# grammar is missing, this exits 77
+too, rather than reporting faults "not caught".
+
+Exit codes: 0 every fault was caught, 1 a fault went unnoticed, 77 nothing was verified.
 Run: python Tests/test_semantics_selftest.py
 """
 import pathlib
@@ -48,6 +53,9 @@ with tempfile.TemporaryDirectory() as tmp:
     def run_checker():
         result = subprocess.run([sys.executable, "Tests/test_csharp_semantics.py"],
                                 cwd=work, capture_output=True, text=True)
+        if result.returncode == 77:
+            print("SKIP the semantic checker needs tree_sitter; nothing was verified")
+            sys.exit(77)
         return result.returncode, result.stdout
 
     code, out = run_checker()

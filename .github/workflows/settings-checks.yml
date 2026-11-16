@@ -49,6 +49,9 @@ jobs:
       - name: Install the C# grammar used by the checks below
         run: pip install tree_sitter tree_sitter_c_sharp
 
+      # The three checks below need the grammar. They exit 77 rather than 0 if it is missing, so a
+      # broken install step above fails the job instead of quietly passing it.
+
       # A {Binding} to a member the view model does not have fails silently in WPF.
       - name: XAML bindings resolve
         run: python Tests/test_xaml_bindings.py

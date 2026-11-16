@@ -7,7 +7,10 @@ lived on MainWindowViewModel rather than HomeViewModel, so the card never appear
 nothing.
 
 Uses a real C# grammar (tree_sitter_c_sharp) to collect members, so it does not depend on regular
-expressions understanding the code. Skipped if the parsers are not installed.
+expressions understanding the code. If the parsers are not installed it prints SKIP and exits 77, so
+a missing grammar cannot read as a pass.
+
+Exit codes: 0 every binding resolves, 1 at least one does not, 77 nothing was checked.
 """
 import pathlib
 import re
@@ -18,7 +21,7 @@ try:
     from tree_sitter import Language, Parser
 except ImportError:
     print("SKIP tree_sitter not installed (pip install tree_sitter tree_sitter_c_sharp)")
-    sys.exit(0)
+    sys.exit(77)
 
 root = pathlib.Path(__file__).resolve().parents[1]
 parser = Parser(Language(tscs.language()))
