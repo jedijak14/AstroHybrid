@@ -1,0 +1,53 @@
+name: Settings checks
+
+# The launcher's settings pipeline is checked without Windows or the WPF build: the tables in the
+# C# are compared with the Python copy of them, and the copy is exercised (label/table agreement,
+# index bounds, card feature gates, AMD/NVIDIA interplay, launch environment per GPU tier, settings
+# JSON round trip). See Tests/test_settings_*.py.
+
+on:
+  push:
+    paths:
+      - "AstroHybrid.App/Models/AppSettings.cs"
+      - "AstroHybrid.App/Models/GameInfo.cs"
+      - "AstroHybrid.App/Services/LauncherService.cs"
+      - "AstroHybrid.App/Services/HardwareDetector.cs"
+      - "AstroHybrid.App/ViewModels/MainWindowViewModel.cs"
+      - "AstroHybrid.App/ViewModels/GraphicsSettingsViewModel.cs"
+      - "Tests/settings_model.py"
+      - "Tests/test_settings_*.py"
+      - ".github/workflows/settings-checks.yml"
+  pull_request:
+    paths:
+      - "AstroHybrid.App/**"
+      - "Tests/**"
+      - ".github/workflows/settings-checks.yml"
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Fails if Tests/settings_model.py has drifted from the C# it mirrors.
+      - name: Tables in the C# and in settings_model.py agree
+        run: python Tests/test_settings_tables.py
+
+      # Exercises the pipeline: labels, indices, feature gates, AMD interplay, launch environment.
+      - name: Settings pipeline
+        run: python Tests/test_settings_model.py
+
+      # Old settings files still load; the AMD fields persist.
+      - name: Settings JSON round trip
+        run: python Tests/test_settings_json.py
+
+      # A {Binding} to a member the view model does not have fails silently in WPF.
+      - name: XAML bindings resolve
+        run: |
+          pip install tree_sitter tree_sitter_c_sharp
+          python Tests/test_xaml_bindings.py

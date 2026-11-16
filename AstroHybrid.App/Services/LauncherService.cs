@@ -293,11 +293,10 @@ namespace AstroHybrid.App.Services
             // card AMD's support list does not cover.
             if (settings.AmdFluidMotion && hardware?.SupportsAmdFluidMotion == true)
             {
-                // A fullscreen window, VSync off (the FIFO present mode would hold back the frames the
-                // driver generates) and no cap of ours: the game presents as fast as it can and the
-                // driver interpolates from that.
+                // A fullscreen window, no cap of ours (the driver interpolates from whatever the game
+                // presents, so a cap only starves it) and no FIFO present mode. VSync itself is set
+                // further down, from the VSync switch, which has already been turned off.
                 env["KYTY_GPU_FULLSCREEN"] = "1";
-                env.Remove("KYTY_GPU_PRESENT_MODE");
                 env["ASTROHYBRID_FPS_LIMIT"] = "unlimited";
             }
 
@@ -345,7 +344,11 @@ namespace AstroHybrid.App.Services
             env["ANYPS5_LANGUAGE"] = language.ToString();
 
             // VSync: Vulkan FIFO presentation (the default is immediate presentation).
-            if (settings.VSync) env["KYTY_GPU_PRESENT_MODE"] = "Fifo";
+            // FIFO holds presentation to the refresh rate, which is exactly what the driver's frame
+            // generation must not do: it needs the raw presents. A settings file edited by hand can
+            // ask for both, so the driver wins here.
+            if (settings.VSync && !(settings.AmdFluidMotion && hardware?.SupportsAmdFluidMotion == true))
+                env["KYTY_GPU_PRESENT_MODE"] = "Fifo";
 
             // Advanced page: the variables Run-AstroHybrid.bat reads (it keeps its defaults when unset).
             if (settings.HangWatchdog) env["ASTROHYBRID_HANG_WATCHDOG"] = "1";

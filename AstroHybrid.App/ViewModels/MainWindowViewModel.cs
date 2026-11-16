@@ -211,6 +211,10 @@ namespace AstroHybrid.App.ViewModels
                     ApplyBestSettings();
                 }
 
+                // A settings file can be older than the features it describes, or edited by hand:
+                // drop what this machine cannot do before a page shows it as switched on.
+                Settings.Sanitize(HardwareInfo);
+
                 StatusMessage = InstallationState?.IsInstalled == true ? "Ready" : "Setup required";
 
                 // A game converted by an earlier version on a CPU that is not an AMD one still holds AMD-only
@@ -339,6 +343,8 @@ namespace AstroHybrid.App.ViewModels
                 Settings.AmdFluidMotion = false;
                 Settings.AmdSuperResolution = false;
             }
+
+            Settings.Sanitize(HardwareInfo);
 
             _settingsManager.Save(Settings);
             StatusMessage = "Applied best settings for this PC";

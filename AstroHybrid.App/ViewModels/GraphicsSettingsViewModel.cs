@@ -62,12 +62,9 @@ namespace AstroHybrid.App.ViewModels
                 hardware.SelectGpu(selected);
                 _mainViewModel.Settings.Gpu = selected;
 
-                // DLSS and frame generation need the NVIDIA card: a card without them turns the
-                // options off instead of leaving settings the launcher cannot honour.
-                if (!hardware.SupportsDlss && _mainViewModel.Settings.Upscale != 0)
-                    _mainViewModel.Settings.Upscale = 0;
-                if (!hardware.SupportsFrameGeneration && _mainViewModel.Settings.FrameGenMode != 0)
-                    _mainViewModel.Settings.FrameGenMode = 0;
+                // DLSS, frame generation and the AMD driver features need their card: a card without
+                // them turns the options off instead of leaving settings the launcher cannot honour.
+                _mainViewModel.Settings.Sanitize(hardware);
 
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GpuNote));
@@ -81,7 +78,20 @@ namespace AstroHybrid.App.ViewModels
                 OnPropertyChanged(nameof(AmdFeaturesNote));
                 OnPropertyChanged(nameof(AmdNote));
                 OnPropertyChanged(nameof(AmdFluidMotion));
+                OnPropertyChanged(nameof(AmdSuperResolution));
+                OnPropertyChanged(nameof(AmdRenderSizeIndex));
                 OnPropertyChanged(nameof(AmdRenderSizeEnabled));
+                // Sanitize may also have changed these, and the Display card shows them.
+                OnPropertyChanged(nameof(Fullscreen));
+                OnPropertyChanged(nameof(VSync));
+                OnPropertyChanged(nameof(FpsIndex));
+                OnPropertyChanged(nameof(RayTracingIndex));
+                OnPropertyChanged(nameof(FrameGenTargetIndex));
+                OnPropertyChanged(nameof(OverlayIndex));
+                OnPropertyChanged(nameof(IsFpsLimitEnabled));
+                OnPropertyChanged(nameof(IsVSyncAvailable));
+                OnPropertyChanged(nameof(VSyncNote));
+                OnPropertyChanged(nameof(FpsLimitNote));
                 _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.HardwareInfo));
                 _mainViewModel.OnPropertyChanged(nameof(MainWindowViewModel.Settings));
             }

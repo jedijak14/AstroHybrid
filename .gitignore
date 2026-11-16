@@ -32,3 +32,4 @@
 # Reference art and generated candidates for the logo work
 /image-search/
 /brand-candidates/
+__pycache__/

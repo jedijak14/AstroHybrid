@@ -157,6 +157,48 @@ namespace AstroHybrid.App.Models
         [JsonIgnore]
         public int EffectiveRumblePercent => RumbleSetting.EffectivePercent(RumblePercent, Rumble);
 
+        // Makes a loaded file describe something this PC can actually do, and drops index values that
+        // point outside the launcher's own lists. Called once hardware is known. Only values that
+        // cannot work are changed; a combination that is merely a bad idea is left for the note on
+        // the Graphics page to explain.
+        public void Sanitize(HardwareInfo? hardware)
+        {
+            if (Fps < 0 || Fps > 6) Fps = 0;
+            if (Speed < 0 || Speed > 5) Speed = 0;
+            if (Size < 0 || Size > 3) Size = 2;
+            if (Overlay < 0 || Overlay > 3) Overlay = 0;
+            if (Controller < 0 || Controller > 4) Controller = 0;
+            if (FrameGenTarget < 0 || FrameGenTarget > 6) FrameGenTarget = 2;
+            if (Upscale < 0 || Upscale > 1) Upscale = 0;
+            if (FrameGenMode < 0 || FrameGenMode > 4) FrameGenMode = 0;
+            if (AmdRenderSize < 0 || AmdRenderSize > 3) AmdRenderSize = 2;
+            if (RumblePercent < 0 || RumblePercent > 200) RumblePercent = 70;
+
+            // NVIDIA features need the card, and frame generation also needs an upscaler to run on.
+            if (hardware == null || !hardware.SupportsDlss) Upscale = 0;
+            if (hardware == null || !hardware.SupportsFrameGeneration || Upscale == 0) FrameGenMode = 0;
+            // Reflex is VK_NV_low_latency2: without an RTX card the engine only logs "requested but
+            // unavailable: off", so stop asking.
+            if (hardware == null || !hardware.SupportsReflex) LowLatency = false;
+
+            // AMD features need a Radeon card AMD's list covers.
+            if (hardware == null || !hardware.SupportsAmdFluidMotion) AmdFluidMotion = false;
+            if (hardware == null || !hardware.SupportsAmdSuperResolution) AmdSuperResolution = false;
+
+            // Two upscalers and two frame generators cannot both be right.
+            if (Upscale != 0) AmdSuperResolution = false;
+            if (FrameGenMode != 0) AmdFluidMotion = false;
+
+            // Fluid Motion Frames needs a fullscreen window with VSync off; Radeon Super Resolution
+            // needs a window and a render size below the screen's.
+            if (AmdFluidMotion)
+            {
+                Fullscreen = true;
+                VSync = false;
+            }
+            if (AmdSuperResolution && AmdRenderSize >= 3) AmdRenderSize = 2;
+        }
+
         // Writes both fields after loading, so an older launcher and this build read the same strength.
         public void NormalizeRumble()
         {
