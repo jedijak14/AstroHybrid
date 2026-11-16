@@ -34,6 +34,11 @@ on:
         type: boolean
         required: false
         default: false
+      skip_assets:
+        description: "Copy notes/metadata only (no binaries)"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -66,6 +71,7 @@ jobs:
           DRAFT: ${{ inputs.draft }}
           OVERWRITE: ${{ inputs.overwrite }}
           DRY_RUN: ${{ inputs.dry_run }}
+          SKIP_ASSETS: ${{ inputs.skip_assets }}
         run: bash Tools/release/mirror_releases.sh
 
       - name: Disk space after

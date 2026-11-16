@@ -19,6 +19,9 @@
 #   DRAFT        true  -> leave mirrored releases as drafts (default: false = publish)
 #   OVERWRITE    true  -> re-create existing releases and re-upload assets
 #   DRY_RUN      true  -> print the plan, change nothing
+#   SKIP_ASSETS  true  -> copy release notes/titles only (lets you create the
+#                         drafts from a sandbox, then let the workflow fill in
+#                         the binaries; publishing is left to the caller)
 #
 # Requirements: gh (authenticated), curl, git (with the tags fetched), sha256sum.
 set -euo pipefail
@@ -28,6 +31,8 @@ TARGET_REPO="${TARGET_REPO:-${GITHUB_REPOSITORY:-}}"
 DRAFT="${DRAFT:-false}"
 OVERWRITE="${OVERWRITE:-false}"
 DRY_RUN="${DRY_RUN:-false}"
+SKIP_ASSETS="${SKIP_ASSETS:-false}"
+TAGS="${TAGS:-}"
 
 log()  { printf '%s\n' "==> $*"; }
 warn() { printf '%s\n' "warning: $*" >&2; }
@@ -58,7 +63,7 @@ fi
 log "source:     $SRC_REPO"
 log "target:     $TARGET_REPO"
 log "tags:       ${WANTED[*]}"
-log "draft:      $DRAFT   overwrite: $OVERWRITE   dry-run: $DRY_RUN"
+log "draft:      $DRAFT   overwrite: $OVERWRITE   dry-run: $DRY_RUN   skip-assets: $SKIP_ASSETS"
 
 PENDING_PUBLISH=()
 
@@ -114,6 +119,13 @@ for tag in "${WANTED[@]}"; do
   fi
 
   # 3. Download and re-upload every asset, verifying upstream size + digest.
+  if [[ "$SKIP_ASSETS" == "true" ]]; then
+    log "$tag: SKIP_ASSETS=true - ${#asset_ids[@]} asset(s) not copied"
+    [[ "$DRAFT" == "true" ]] && { log "$tag: left as draft"; continue; }
+    log "$tag: left unpublished (run again without SKIP_ASSETS to add assets, then publish)"
+    continue
+  fi
+
   for i in "${!asset_ids[@]}"; do
     name="${asset_names[$i]}"
     id="${asset_ids[$i]}"
