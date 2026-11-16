@@ -1,0 +1,73 @@
+name: Mirror releases
+
+# Copies GitHub Releases (notes + binary assets) from an upstream project into
+# this repository. Runs on a GitHub-hosted runner because the release asset CDN
+# and the upload endpoint are not reachable from a local/dev sandbox.
+#
+# Trigger it from the Actions tab (or with `gh workflow run mirror-releases.yml`)
+# and fill in the inputs. Re-running is safe: existing published releases are
+# skipped unless overwrite is enabled.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: "Upstream repository to copy releases from"
+        required: true
+        default: imnotsharingmyname/pcportastrobot
+      tags:
+        description: "Space or comma separated tags (blank = every upstream release)"
+        required: false
+        default: ""
+      draft:
+        description: "Leave the copied releases as drafts instead of publishing"
+        type: boolean
+        required: false
+        default: false
+      overwrite:
+        description: "Re-create releases that already exist and re-upload their assets"
+        type: boolean
+        required: false
+        default: false
+      dry_run:
+        description: "Only print the plan; change nothing"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-releases
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Check out repository (with tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Disk space before
+        run: df -h /
+
+      - name: Mirror releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SRC_REPO: ${{ inputs.source_repo }}
+          TARGET_REPO: ${{ github.repository }}
+          TAGS: ${{ inputs.tags }}
+          DRAFT: ${{ inputs.draft }}
+          OVERWRITE: ${{ inputs.overwrite }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: bash Tools/release/mirror_releases.sh
+
+      - name: Disk space after
+        if: always()
+        run: df -h /
