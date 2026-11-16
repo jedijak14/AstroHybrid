@@ -49,6 +49,12 @@ namespace AstroHybrid.App.ViewModels
         public ICommand NavigateToSettingsCommand { get; }
         public ICommand NavigateToControllerCommand { get; }
         public ICommand NavigateToInstallationCommand { get; }
+
+        // The release-notes card in HomeView.xaml. These live on the main view model, so without the
+        // pass-throughs the card never appeared (it binds UpdateState.UpdateAvailable, which failed
+        // silently) and its two buttons did nothing.
+        public UpdateState UpdateState => _mainViewModel.UpdateState;
+        public ICommand DownloadUpdateCommand => _mainViewModel.DownloadUpdateCommand;
         public ICommand ToggleRayTracingCommand => new RelayCommand(() =>
         {
             _mainViewModel.Settings.Lighting = _mainViewModel.Settings.Lighting == 1 ? 0 : 1;
