@@ -274,12 +274,17 @@ function chrome({ logo }) {
   return s;
 }
 
+const PAD_PS = "M6,7.6 L14,7.6 C15.9,7.6 17.2,9.1 17.2,11 L17.2,12.6 C17.2,14.1 16.2,14.8 15.1,14.8 C13.9,14.8 13.2,14 12.5,13.1 L7.5,13.1 C6.8,14 6.1,14.8 4.9,14.8 C3.8,14.8 2.8,14.1 2.8,12.6 L2.8,11 C2.8,9.1 4.1,7.6 6,7.6 Z M6.2,9.6 L8.4,9.6 M7.3,8.5 L7.3,10.7 M12.5,9.3 A0.58,0.58 0 1 1 12.49,9.3 M14,10.9 A0.58,0.58 0 1 1 13.99,10.9";
+const PAD_XBOX = "M10,3.2 A6.8,6.8 0 1 1 9.99,3.2 M7.2,7.2 L12.8,12.8 M12.8,7.2 L7.2,12.8";
+const PAD_SWITCH = "M3.4,8 A1.4,1.4 0 0 1 4.8,6.6 L7.6,6.6 L7.6,13.4 L4.8,13.4 A1.4,1.4 0 0 1 3.4,12 Z M16.6,8 A1.4,1.4 0 0 0 15.2,6.6 L12.4,6.6 L12.4,13.4 L15.2,13.4 A1.4,1.4 0 0 0 16.6,12 Z M5.2,9.2 A0.5,0.5 0 1 1 5.19,9.2 M14.1,9.6 L15.1,9.6 M14.6,9.1 L14.6,10.1";
+const PAD_GENERIC = "M5.5,7.9 L14.5,7.9 A3.2,3.2 0 0 1 17.7,11.1 L17.7,12 A2.1,2.1 0 0 1 14,13.4 L12.6,12.2 L7.4,12.2 L6,13.4 A2.1,2.1 0 0 1 2.3,12 L2.3,11.1 A3.2,3.2 0 0 1 5.5,7.9 Z";
+
 const NAV = [
-  { key: "home", label: "Home", d: "M3 10 L10 3.2 L17 10 M5 9.4 L5 16.4 L15 16.4 L15 9.4", group: "PLAY" },
-  { key: "graphics", label: "Graphics", d: "M3 6.4 L17 6.4 L17 15.6 L3 15.6 Z M6.4 6.4 L6.4 3.2 L13.6 3.2 L13.6 6.4" },
-  { key: "controller", label: "Controller", d: "M5.6 6.6 L14.4 6.6 A4.5 4.5 0 0 1 18.6 11.9 L17.7 14.7 A2 2 0 0 1 14.9 15.9 L12.6 14.1 L7.4 14.1 L5.1 15.9 A2 2 0 0 1 2.3 14.7 L1.4 11.9 A4.5 4.5 0 0 1 5.6 6.6 Z" },
-  { key: "advanced", label: "Advanced", d: "M10 6.6 A3.4 3.4 0 1 1 9.99 6.6 Z M10 1.6 L10 3.6 M10 16.4 L10 18.4 M1.6 10 L3.6 10 M16.4 10 L18.4 10 M4.1 4.1 L5.5 5.5 M14.5 14.5 L15.9 15.9 M15.9 4.1 L14.5 5.5 M5.5 14.5 L4.1 15.9", group: "SYSTEM" },
-  { key: "installation", label: "Installation", d: "M10 2.4 L17 6 L17 14 L10 17.6 L3 14 L3 6 Z M3 6 L10 9.6 L17 6 M10 9.6 L10 17.6" },
+  { key: "home", label: "Home", d: "M3.2,9.7 L10,3.4 L16.8,9.7 M5.2,9 L5.2,16.4 L14.8,16.4 L14.8,9", group: "PLAY" },
+  { key: "graphics", label: "Graphics", d: "M4,5 A1.4,1.4 0 0 1 5.4,3.6 L14.6,3.6 A1.4,1.4 0 0 1 16,5 L16,12.4 A1.4,1.4 0 0 1 14.6,13.8 L5.4,13.8 A1.4,1.4 0 0 1 4,12.4 Z M10,13.8 L10,16.2 M7.4,16.4 L12.6,16.4" },
+  { key: "controller", label: "Controller", d: PAD_PS },
+  { key: "advanced", label: "Advanced", d: "M3,7.2 L17,7.2 M3,13 L17,13 M7.4,7.2 A1.9,1.9 0 1 1 7.39,7.2 M12.9,13 A1.9,1.9 0 1 1 12.89,13", group: "SYSTEM" },
+  { key: "installation", label: "Installation", d: "M10,2.6 L17,6.2 L17,13.8 L10,17.4 L3,13.8 L3,6.2 Z M3,6.2 L10,9.8 L17,6.2 M10,9.8 L10,17.4" },
 ];
 
 function nav(active) {
@@ -353,8 +358,31 @@ function sceneHome() {
   s += rect(x + 18, cy + 54, width - 36, 34, { fill: "#12000000", stroke: C.borderSubtle, r: 8 });
   s += text(x + 32, cy + 76, vm.config, { size: 12.5, fill: C.textSecondary });
 
+  // In-game keys
+  const gy = cy + 118;
+  s += card(x, gy, width, 116);
+  const keycap = (kx, ky2, label) => {
+    const w = textWidth(label, 11, 400) + 14;
+    return rect(kx, ky2, w, 20, { fill: C.surfaceLight, stroke: C.borderStrong, r: 5 }) +
+      text(kx + 7, ky2 + 14, label, { size: 11, fill: C.textSecondary });
+  };
+  s += text(x + 18, gy + 24, "IN GAME", { size: 10.5, weight: 600, fill: C.textMuted });
+  let keyY = gy + 36;
+  for (const [cap, desc] of [["F2", "Performance overlay"], ["Ctrl+F2", "Cycle the frame-rate limit"], ["F11", "Toggle fullscreen"]]) {
+    s += keycap(x + 18, keyY, cap);
+    s += text(x + 92, keyY + 14, desc, { size: 11.5, fill: C.textMuted });
+    keyY += 27;
+  }
+  s += text(x + width / 2 + 20, gy + 24, "OVERLAY", { size: 10.5, weight: 600, fill: C.textMuted });
+  keyY = gy + 36;
+  for (const [cap, desc] of [["Shift+F2", "Detailed panel"], ["F11", "Fullscreen (same as Alt+Enter)"]]) {
+    s += keycap(x + width / 2 + 20, keyY, cap);
+    s += text(x + width / 2 + 100, keyY + 14, desc, { size: 11.5, fill: C.textMuted });
+    keyY += 27;
+  }
+
   // Shortcuts
-  const ky = cy + 118;
+  const ky = gy + 130;
   s += card(x, ky, width, 84);
   s += text(x + 18, ky + 24, "SHORTCUTS", { size: 10.5, weight: 600, fill: C.textMuted });
   let bx = x + 18;
@@ -420,21 +448,23 @@ function sceneController() {
   s += note(x + 18, cy + 132, "Bluetooth DualSense pads use haptics when they are available.");
 
   cy += 164;
-  s += card(x, cy, width, 196);
+  s += card(x, cy, width, 340);
   s += sectionTitle(x + 18, cy + 28, "Connected controllers");
   s += text(x + width - 18, cy + 26, "Refresh", { size: 12, weight: 600, fill: C.accent, anchor: "end" });
 
   const pads = [
-    ["DualSense Wireless Controller", "DualSense", ["Connected", "Haptics", "Motion", "Triggers"], "0x1c2d"],
-    ["Xbox Wireless Controller", "Xbox", ["Connected", "Haptics"], "0x3f81"],
+    ["DualSense Wireless Controller", "DualSense", ["Connected", "Haptics", "Motion", "Triggers"], "0x1c2d", PAD_PS],
+    ["Xbox Wireless Controller", "Xbox", ["Connected", "Haptics"], "0x3f81", PAD_XBOX],
+    ["Switch Pro Controller", "Switch Pro", ["Connected", "Haptics", "Motion"], "0x2a74", PAD_SWITCH],
+    ["Generic Gamepad", "Generic", ["Connected"], "0x55b0", PAD_GENERIC],
   ];
   let py = cy + 40;
-  for (const [name, type, tags, id] of pads) {
+  for (const [name, type, tags, id, glyph] of pads) {
     s += rect(x + 18, py, width - 36, 64, { fill: C.surfaceLight, stroke: C.borderSubtle, r: 10 });
-    s += `<svg x="${x + 32}" y="${py + 22}" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="${C.textSecondary}" stroke-width="1.4" stroke-linejoin="round">${GLYPH.pad}</svg>`;
-    s += text(x + 66, py + 24, name, { size: 13.5, weight: 600, fill: C.text });
-    s += text(x + 66, py + 40, type, { size: 11.5, fill: C.textMuted });
-    let tx = x + 66;
+    s += `<svg x="${x + 32}" y="${py + 21}" width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="${C.textSecondary}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="${glyph}"/></svg>`;
+    s += text(x + 68, py + 24, name, { size: 13.5, weight: 600, fill: C.text });
+    s += text(x + 68, py + 40, type, { size: 11.5, fill: C.textMuted });
+    let tx = x + 68;
     for (const tag of tags) {
       const w = textWidth(tag, 10.5, 600) + 14;
       const isState = tag === "Connected";
@@ -535,12 +565,17 @@ function sceneInstallation() {
   cy += 118;
   s += card(x, cy, width, 150);
   s += sectionTitle(x + 18, cy + 28, "Maintenance");
-  s += button(x + 18, cy + 42, 104, 36, "Repair");
-  s += button(x + 130, cy + 42, 104, 36, "Rebuild");
-  s += button(x + 242, cy + 42, 124, 36, "Change location");
+  const wrench = "M12.6,3.6 A4.4,4.4 0 0 0 6.1,8.9 L3.4,11.6 A1.7,1.7 0 0 0 5.8,14 L8.5,11.3 A4.4,4.4 0 0 0 13.8,4.8 L11.7,6.9 L10.6,5.8 Z";
+  const refresh = "M10,3.4 A6.6,6.6 0 1 0 16.6,10 M16.6,10 L16.6,5.6 M16.6,10 L12.4,10";
+  const move = "M2.8,5.6 L2.8,15.4 L17.2,15.4 L17.2,5.6 L9.4,5.6 L7.8,3.4 L2.8,3.4 Z M7.4,10.8 L12.6,10.8 M10.8,8.8 L12.8,10.8 L10.8,12.8";
+  for (const [bx2, bw, glyph, label] of [[x + 18, 112, wrench, "Repair"], [x + 138, 112, refresh, "Rebuild"], [x + 258, 140, move, "Change location"]]) {
+    s += rect(bx2, cy + 42, bw, 36, { fill: C.surfaceLight, stroke: C.border, r: 8 });
+    s += `<svg x="${bx2 + 13}" y="${cy + 52.5}" width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="${C.textSecondary}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="${glyph}"/></svg>`;
+    s += text(bx2 + 36, cy + 65, label, { size: 12.5, weight: 600, fill: C.text });
+  }
   const folderIcon = `<path d="M2.5 5.5 L2.5 15 L17.5 15 L17.5 5.5 L9.5 5.5 L8 3.2 L2.5 3.2 Z" fill="none" stroke="${C.textSecondary}" stroke-width="1.4" stroke-linejoin="round"/>`;
   const docIcon = `<path d="M4 2.5 L12 2.5 L16 6.5 L16 17.5 L4 17.5 Z M12 2.5 L12 6.5 L16 6.5" fill="none" stroke="${C.textSecondary}" stroke-width="1.4" stroke-linejoin="round"/>`;
-  for (const [bx2, bw, icon, label] of [[x + 18, 176, folderIcon, "Install folder"], [x + 202, 130, docIcon, "Logs"]]) {
+  for (const [bx2, bw, icon, label] of [[x + 18, 187, folderIcon, "Install folder"], [x + 213, 187, docIcon, "Logs"]]) {
     s += rect(bx2, cy + 86, bw, 36, { fill: C.surfaceLight, stroke: C.border, r: 8 });
     s += `<svg x="${bx2 + 12}" y="${cy + 96.5}" width="15" height="15" viewBox="0 0 20 20">${icon}</svg>`;
     s += text(bx2 + 35, cy + 108.5, label, { size: 12.5, weight: 600, fill: C.text });

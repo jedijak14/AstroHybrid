@@ -9,6 +9,19 @@
              d:DesignHeight="600" d:DesignWidth="800">
 
     <UserControl.Resources>
+        <Style x:Key="ButtonGlyphStyle" TargetType="Path">
+            <Setter Property="Width" Value="15"/>
+            <Setter Property="Height" Value="15"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="Fill" Value="Transparent"/>
+            <Setter Property="Stroke" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="StrokeThickness" Value="1.4"/>
+            <Setter Property="StrokeStartLineCap" Value="Round"/>
+            <Setter Property="StrokeEndLineCap" Value="Round"/>
+            <Setter Property="StrokeLineJoin" Value="Round"/>
+        </Style>
         <Style x:Key="KeyStyle" TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
             <Setter Property="Width" Value="130"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -138,34 +151,54 @@
                     <TextBlock Text="Maintenance" Style="{StaticResource SectionHeaderStyle}"/>
 
                     <WrapPanel>
-                        <Button Content="Repair" Command="{Binding RepairCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="104" MinHeight="36" FontSize="12.5"/>
-                        <Button Content="Rebuild" Command="{Binding RebuildCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="104" MinHeight="36" FontSize="12.5"/>
-                        <Button Content="Change location" Command="{Binding ChangeLocationCommand}"
-                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8" MinWidth="124" MinHeight="36" FontSize="12.5"/>
+                        <Button Command="{Binding RepairCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8"
+                                MinWidth="112" MinHeight="36" FontSize="12.5">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Style="{StaticResource ButtonGlyphStyle}"
+                                      Data="M12.6,3.6 A4.4,4.4 0 0 0 6.1,8.9 L3.4,11.6 A1.7,1.7 0 0 0 5.8,14 L8.5,11.3 A4.4,4.4 0 0 0 13.8,4.8 L11.7,6.9 L10.6,5.8 Z"/>
+                                <TextBlock Text="Repair" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding RebuildCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8"
+                                MinWidth="112" MinHeight="36" FontSize="12.5">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Style="{StaticResource ButtonGlyphStyle}"
+                                      Data="M10,3.4 A6.6,6.6 0 1 0 16.6,10 M16.6,10 L16.6,5.6 M16.6,10 L12.4,10"/>
+                                <TextBlock Text="Rebuild" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding ChangeLocationCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8"
+                                MinWidth="140" MinHeight="36" FontSize="12.5">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Style="{StaticResource ButtonGlyphStyle}"
+                                      Data="M2.8,5.6 L2.8,15.4 L17.2,15.4 L17.2,5.6 L9.4,5.6 L7.8,3.4 L2.8,3.4 Z M7.4,10.8 L12.6,10.8 M10.8,8.8 L12.8,10.8 L10.8,12.8"/>
+                                <TextBlock Text="Change location" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </WrapPanel>
 
                     <WrapPanel Margin="0,2,0,0">
                         <Button Command="{Binding OpenInstallFolderCommand}"
                                 Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,8"
-                                MinWidth="176" MinHeight="36" FontSize="12.5" HorizontalContentAlignment="Left">
+                                MinWidth="187" MinHeight="36" FontSize="12.5" HorizontalContentAlignment="Left">
                             <StackPanel Orientation="Horizontal">
-                                <Path Data="M2.5,5.5 L2.5,15 L17.5,15 L17.5,5.5 L9.5,5.5 L8,3.2 L2.5,3.2 Z"
-                                      Width="15" Height="15" Stretch="Uniform" Fill="Transparent"
-                                      Stroke="{StaticResource TextSecondaryBrush}" StrokeThickness="1.4"
-                                      StrokeLineJoin="Round" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <Path Style="{StaticResource ButtonGlyphStyle}"
+                                      Data="M2.5,5.5 L2.5,15 L17.5,15 L17.5,5.5 L9.5,5.5 L8,3.2 L2.5,3.2 Z"/>
                                 <TextBlock Text="Install folder" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
+
                         <Button Command="{Binding OpenLogFolderCommand}"
                                 Style="{StaticResource SecondaryButtonStyle}"
-                                MinWidth="130" MinHeight="36" FontSize="12.5" HorizontalContentAlignment="Left">
+                                MinWidth="187" MinHeight="36" FontSize="12.5" HorizontalContentAlignment="Left">
                             <StackPanel Orientation="Horizontal">
-                                <Path Data="M4,2.5 L12,2.5 L16,6.5 L16,17.5 L4,17.5 Z M12,2.5 L12,6.5 L16,6.5"
-                                      Width="15" Height="15" Stretch="Uniform" Fill="Transparent"
-                                      Stroke="{StaticResource TextSecondaryBrush}" StrokeThickness="1.4"
-                                      StrokeLineJoin="Round" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <Path Style="{StaticResource ButtonGlyphStyle}"
+                                      Data="M4,2.5 L12,2.5 L16,6.5 L16,17.5 L4,17.5 Z M12,2.5 L12,6.5 L16,6.5"/>
                                 <TextBlock Text="Logs" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
