@@ -286,7 +286,19 @@ namespace AstroHybrid.App.Services
                 gpu.MaxFrameGenMultiplier = gpu.RtxSeries >= 50 ? 4 : 2; // RTX 50 supports up to 4x
             }
 
-            // AMD FSR support would go here if implemented
+            // AMD: Fluid Motion Frames and Radeon Super Resolution live in AMD Software (Adrenalin),
+            // not in the game, so there is nothing to enable here. The launcher only records the card
+            // generation: it sets up the game for the drivers (fullscreen, VSync off, a render
+            // resolution below the screen) and says which switch to flip in Adrenalin.
+            // Four digits only: RX 7900 XTX, RX 6600M and RX 9070 all count; RX 580 and RX Vega do not
+            // (Polaris and Vega are outside AMD's support list, and four digits never match them).
+            var radeon = Regex.Match(gpu.Name, @"RX\s*(?:[MR]\s*)?(\d{4})(?!\d)", RegexOptions.IgnoreCase);
+            if (radeon.Success && int.TryParse(radeon.Groups[1].Value.Substring(0, 2), out var generation))
+            {
+                // "7900" -> 79 -> 7900 (RDNA 3), "6600" -> 66 -> 6600 (RDNA 2), "5500" -> 55 -> 5500.
+                gpu.RadeonSeries = generation * 100;
+            }
+
             // Intel XeSS support would go here if implemented
         }
 

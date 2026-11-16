@@ -320,6 +320,26 @@ namespace AstroHybrid.App.ViewModels
             Settings.RumblePercent = 70; // Medium
             Settings.Rumble = RumbleSetting.ToLegacyIndex(70);
 
+            // AMD's driver-level features (AMD Software) are off by default: at 30 FPS the port is far
+            // below the rate Fluid Motion Frames is meant for, so that stays the user's decision. What
+            // is set here is the resolution Radeon Super Resolution would upscale from, the largest
+            // step below the screen that still fits it.
+            if (HardwareInfo.SupportsAmdSuperResolution)
+            {
+                var widths = new[] { 1280, 1600, 1920 };
+                var heights = new[] { 720, 900, 1080 };
+                var pick = 0;
+                for (var i = 0; i < widths.Length; i++)
+                    if (widths[i] < HardwareInfo.ScreenWidth && heights[i] < HardwareInfo.ScreenHeight)
+                        pick = i;
+                Settings.AmdRenderSize = pick;
+            }
+            else
+            {
+                Settings.AmdFluidMotion = false;
+                Settings.AmdSuperResolution = false;
+            }
+
             _settingsManager.Save(Settings);
             StatusMessage = "Applied best settings for this PC";
         }

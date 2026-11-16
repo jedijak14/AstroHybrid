@@ -46,6 +46,20 @@ namespace AstroHybrid.App.Models
         [JsonPropertyName("fgtarget")]
         public int FrameGenTarget { get; set; } = 2;
 
+        // AMD Radeon features (Graphics page). Both are driver-level: the launcher sets up the game
+        // for them (fullscreen, no VSync, a render resolution below the screen) and Adrenalin does the
+        // rest per game. Stored as separate answers so turning one off leaves the other alone.
+        [JsonPropertyName("amdfmf")]
+        public bool AmdFluidMotion { get; set; } = false;
+
+        [JsonPropertyName("amdrsr")]
+        public bool AmdSuperResolution { get; set; } = false;
+
+        // Output resolution while Radeon Super Resolution upscales: 0 = 720p, 1 = 900p, 2 = 1080p,
+        // 3 = leave the game at the screen resolution (RSR then does nothing).
+        [JsonPropertyName("amdsize")]
+        public int AmdRenderSize { get; set; } = 2;
+
         [JsonPropertyName("pad")]
         public int Controller { get; set; } = 0;
 
