@@ -24,7 +24,8 @@ byte for byte from a 01.019.000 dump. Other Astro Bot versions are accepted: the
 real-time game speed switch themselves off when that version's code differs (they depend on exact code
 locations); everything else works the same way. Only 01.019.000 has been tested.
 
-Requirements: Windows 10/11 x64, a Vulkan GPU; DLSS needs an RTX card, frame generation an RTX 40 or 50.
+Requirements: Windows 10/11 x64, a Vulkan GPU; DLSS needs an RTX card, frame generation an RTX 40 or 50. The
+[CPU and GPU table](#which-cpu-and-gpu-gets-you-what) below says what each tier actually runs at.
 Controllers: DualSense, DualShock 4, Xbox, Switch Pro and compatible pads, generic pads (the one you press plays).
 Command line: `AstroHybrid.exe --setup "<dump folder>"` runs the setup without a window; `--remove-game` removes
 what setup built.
@@ -79,6 +80,82 @@ tuning (within noise), Lossless Scaling x2 (stutter and input lag), AnyPS5's own
 
 Caveat: numbers move with background load. With a browser playing audio the same 30 FPS-capped scene read
 22-25 FPS in one evening session, so compare runs on a quiet machine.
+
+## Which CPU and GPU gets you what
+
+The **Tune for this PC** button (called "Best settings for this PC" in the older launcher) reads your card's
+RTX generation and your display's resolution and refresh rate, and nothing else. CPU and RAM are detected and
+shown but never change a setting. These tables make that logic visible, and add the one thing it cannot know:
+how fast the result will actually run.
+
+**Read this first.** The project has been benchmarked on exactly one PC (the one in the section above). Its CPU
+is the ceiling: 30-34 FPS in the heaviest area, and more GPU does not move that number. So a bigger card
+buys you *smoother output at the same game speed* through Frame Generation, not a higher game rate.
+
+- **measured**: run on that PC, listed in `Docs/PERFORMANCE.md`.
+- *arithmetic*: a multiplication of a measured number (frames on screen = game frames x multiplier), not a run.
+- *est.*: guessed from how a frame is spent, not from a benchmark on that hardware.
+- **reported**: sent in by another tester.
+
+### GPU: what the card gets you
+
+| Tier (minimum card) | VRAM | Game's own FPS, heavy area | Upscaling | Frame Gen | On screen | Verdict |
+|---|---|---|---|---|---|---|
+| RTX 50 on a 120 Hz+ display | 8 GB | 32-34 **measured** | DLSS | Auto to 120, picks 4x | 124-128 **measured** | **Showcase.** This is the machine this was built on. |
+| RTX 50 on a 90 Hz display | 8 GB | 32-34 **measured** | DLSS | Auto to 90, picks 3x | 96-102 *arithmetic* | **Smooth.** Same game rate, three frames shown per one. |
+| RTX 50 on a 60 Hz display | 8 GB | 32-34 **measured** | DLSS | Auto to 60, picks 2x | 63 **measured** | **Good.** Measured at 2.00 shown frames per game frame. |
+| RTX 40 (4060 and up) | 8 GB | 32-34 *est.* | DLSS | 2x only | 60-68 *arithmetic* | **Good.** Same ceiling as RTX 50, half the smoothness. |
+| RTX 30 (3060 and up) | 8 GB | 30-34 *est.* | DLSS | no | same | **Playable.** DLSS and Reflex, the rate the port runs at. |
+| RTX 20 (2060 and up) | 6-8 GB | 28-34 *est.* | DLSS | no | same | **Playable.** Oldest tier that gets NVIDIA features at all. |
+| GTX 10/16 series, Arc, RX 6000/7000 | 6-8 GB | 26-34 *est.* | game's own | no | same | **Playable.** Budget a card with 8 GB; VRAM is the real floor. |
+| Integrated graphics (Iris Xe, Vega, 700M) | shared | single digits to mid-teens *est.* | game's own | no | same | **Not playable.** Nothing to turn on that would fix it. |
+
+One **reported** machine sits outside this table: an RTX 4050 laptop with an i7-13700HX read 15-16 FPS on the
+title screen with heavy queue lag in game (AnyPS5 discussion #11917). A 4050 is the bottom of the RTX 40 range
+and a laptop part, so read the RTX 40 row as desktop cards.
+
+Resolution is picked for you too: the largest of 1280x720, 1600x900, 1920x1080 and 2560x1440 that fits your
+display, started fullscreen.
+
+The 8 GB floor is not about speed: with a 4K output buffer the game peaked at 6.5 of the card's 7.0 GB
+during a cutscene, and the one community tweak that got close to 30 FPS on a 12 GB card (a 2.8 GB texture
+cache) does not fit in 8 GB. Resolution barely matters on the measured PC because it is CPU-limited; memory
+does.
+
+### CPU: the ceiling that matters more
+
+| CPU (minimum) | Native FPS, heavy area | Notes |
+|---|---|---|
+| Ryzen 5 5500 / 6 cores, 12 threads, Zen 3 | 30-34 **measured** | The reference machine. Reaches 43-44 in a snowy canyon, 51-53 on a beach. |
+| 8 cores / 16 threads, Zen 4 or Intel 13th gen and up | 30-36 *est.* | A few frames, not a generation. The frame is latency, not throughput. |
+| 4 cores / 8 threads, Zen 2 or Intel 8th-10th gen | 24-32 *est.* | Expect to drop under 30 with other programs open. |
+| 4 cores / 4 threads, or a laptop U-series chip | 18-28 *est.* | Works, stutters in the busiest areas. |
+| 2 cores / 4 threads | not usable *est.* | Setup runs, the game does not keep up. |
+
+Why more cores do not help: the whole process uses 1.5-2.5 of 12 threads, and about 22 ms of a 30 ms frame
+is one thread committing ~4,900 draws and waiting on CPU-GPU syncs (roughly 800 pipeline barriers a frame).
+`Docs/PERFORMANCE.md` has the breakdown and the runs that tried to move it.
+
+### What each feature needs
+
+| Feature | Needs | Where it is set |
+|---|---|---|
+| Game's own upscaling | any Vulkan GPU | always |
+| DLSS Super Resolution | any RTX card (20 series and newer) | automatic on an RTX card |
+| NVIDIA Reflex | any RTX card | automatic with DLSS |
+| Frame Generation 2x | RTX 40 or newer | automatic on RTX 40/50 |
+| Frame Generation 3x and 4x | RTX 50, up to what the runtime allows | automatic on RTX 50 |
+| Auto multiplier to a target | Frame Generation | picks 2x/3x/4x in game every half second |
+
+Frame Generation runs only while the window is focused, and must not be combined with NVIDIA Smooth Motion.
+The Streamline and DLSS runtime files are yours to supply (see the section above).
+
+### Reading the "on screen" column
+
+Frame Generation does not make the game simulate faster. At 4x the game still renders 30-34 frames a second
+and 124-128 are *shown*; input is sampled at the game's rate, and that game rate is why the launcher caps it
+at 30 rather than leaving it uncapped. So treat "on screen" as smoothness, not responsiveness. If a tier says
+30 on screen, that is the game's real rate.
 
 ## What's new in this update
 
