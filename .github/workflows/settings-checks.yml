@@ -8,12 +8,15 @@ name: Settings checks
 on:
   push:
     paths:
+      - "AstroHybrid.App/AstroHybrid.App.csproj"
       - "AstroHybrid.App/Models/AppSettings.cs"
       - "AstroHybrid.App/Models/GameInfo.cs"
       - "AstroHybrid.App/Services/LauncherService.cs"
       - "AstroHybrid.App/Services/HardwareDetector.cs"
       - "AstroHybrid.App/ViewModels/MainWindowViewModel.cs"
       - "AstroHybrid.App/ViewModels/GraphicsSettingsViewModel.cs"
+      - "Tools/hybrid/launcher/AstroBotLauncher.cs"
+      - "AstroHybrid.App/Services/SettingsManager.cs"
       - "Tests/settings_model.py"
       - "Tests/test_settings_*.py"
       - ".github/workflows/settings-checks.yml"
@@ -34,6 +37,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Every assembly the code uses must be referenced by the project file, and every .cs file must be
+      # in <Compile Include>: an old-style .NET Framework project does not add either by itself, and
+      # nothing here can compile the app to find out.
+      - name: Project references and file list
+        run: python Tests/test_project_references.py
+
       # Fails if Tests/settings_model.py has drifted from the C# it mirrors.
       - name: Tables in the C# and in settings_model.py agree
         run: python Tests/test_settings_tables.py
@@ -45,6 +54,11 @@ jobs:
       # Old settings files still load; the AMD fields persist.
       - name: Settings JSON round trip
         run: python Tests/test_settings_json.py
+
+      # The settings file is written by both the app and the classic launcher: an interrupted save
+      # must not lose it, and a recovery must never be silent.
+      - name: Settings survive an interrupted save
+        run: python Tests/test_settings_recovery.py
 
       - name: Install the C# grammar used by the checks below
         run: pip install tree_sitter tree_sitter_c_sharp

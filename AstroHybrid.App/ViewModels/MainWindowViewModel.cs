@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
+using System.IO;
 using AstroHybrid.App.Models;
 using AstroHybrid.App.Services;
 
@@ -39,6 +40,7 @@ namespace AstroHybrid.App.ViewModels
         private bool _isLaunching;
         private bool _isLoading;
         private string _statusMessage = "";
+        private string? _settingsRecoveryNotice;
 
         // Update service
         private UpdateService? _updateService;
@@ -95,7 +97,17 @@ namespace AstroHybrid.App.ViewModels
             base.OnPropertyChanged(propertyName);
             if (propertyName == nameof(Settings) && !IsLoading && _settingsManager != null)
             {
-                try { _settingsManager.Save(Settings); } catch { }
+                // Every settings change reaches the file through here, so a failure has to be visible:
+                // a swallowed exception means the player's change is gone with no sign of why.
+                try
+                {
+                    _settingsManager.Save(Settings);
+                }
+                catch (Exception ex)
+                {
+                    StatusMessage = $"The settings could not be saved: {ex.Message}";
+                    LogDebug($"Settings save failed: {ex}");
+                }
             }
         }
 
@@ -182,6 +194,21 @@ namespace AstroHybrid.App.ViewModels
         public ICommand IgnoreUpdateCommand { get; }
         public ICommand DismissUpdateNotificationCommand { get; }
 
+        /// <summary>Appends a line to the app's debug log (Logs\astrohybrid-debug.log).</summary>
+        private void LogDebug(string message)
+        {
+            try
+            {
+                var logPath = System.IO.Path.Combine(_rootDirectory, "Logs", "astrohybrid-debug.log");
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(logPath)!);
+                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}\n");
+            }
+            catch
+            {
+                // Logging must never be the reason the app fails to start.
+            }
+        }
+
         private async Task InitializeAsync()
         {
             IsLoading = true;
@@ -191,6 +218,13 @@ namespace AstroHybrid.App.ViewModels
             {
                 // Load settings
                 Settings = _settingsManager.Load();
+                // A damaged settings file is recovered from .bak, or falls back to defaults: either way
+                // the player must be told, or the launcher looks as if it forgot their setup for no reason.
+                _settingsRecoveryNotice = _settingsManager.RecoveryNotice;
+                if (!string.IsNullOrEmpty(_settingsRecoveryNotice))
+                {
+                    LogDebug(_settingsRecoveryNotice!);
+                }
 
                 // Check installation state
                 InstallationState = await _installationManager.GetInstallationStateAsync();
@@ -215,7 +249,9 @@ namespace AstroHybrid.App.ViewModels
                 // drop what this machine cannot do before a page shows it as switched on.
                 Settings.Sanitize(HardwareInfo);
 
-                StatusMessage = InstallationState?.IsInstalled == true ? "Ready" : "Setup required";
+                StatusMessage = !string.IsNullOrEmpty(_settingsRecoveryNotice)
+                    ? _settingsRecoveryNotice!
+                    : InstallationState?.IsInstalled == true ? "Ready" : "Setup required";
 
                 // A game converted by an earlier version on a CPU that is not an AMD one still holds AMD-only
                 // instructions and hangs after the title screen: convert it again, once.

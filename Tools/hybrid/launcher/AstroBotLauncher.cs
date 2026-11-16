@@ -255,6 +255,53 @@ static class AstroBotLauncher
         limit = goal == 0 ? 0 : Math.Max(30, goal / multiplier);
     }
 
+    // The live settings file, or the .bak the WPF app keeps when the live one is damaged. Truncated
+    // JSON is the failure mode of an interrupted save; without this the window silently shows
+    // defaults and Play would then write those over the player's real settings.
+    static string ReadSettingsFile(string path)
+    {
+        string text = TryReadText(path);
+        if (IsCompleteJsonObject(text)) return text;
+        string backup = TryReadText(path + ".bak");
+        return backup != null && IsCompleteJsonObject(backup) ? backup : (text ?? "");
+    }
+
+    static string TryReadText(string path)
+    {
+        try { return File.Exists(path) ? File.ReadAllText(path) : null; } catch { return null; }
+    }
+
+    // Deliberately loose: an old settings file without newer keys is still valid, but a truncated
+    // one does not close its brace.
+    static bool IsCompleteJsonObject(string text)
+    {
+        if (text == null) return false;
+        string trimmed = text.Trim();
+        return trimmed.StartsWith("{") && trimmed.EndsWith("}");
+    }
+
+    // Writes the settings file without a moment where it is truncated: the new copy is written
+    // beside it, flushed, then swapped in. File.WriteAllText on the live file loses the settings if
+    // the process dies mid-write, and the WPF app shares this file.
+    static void WriteSettingsAtomically(string path, string text)
+    {
+        string temp = path + ".tmp";
+        byte[] bytes = new System.Text.UTF8Encoding(false).GetBytes(text);
+        using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+        {
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Flush(true);
+        }
+        if (File.Exists(path))
+        {
+            File.Replace(temp, path, path + ".bak", true);
+        }
+        else
+        {
+            File.Move(temp, path);
+        }
+    }
+
     static int ReadInt(string json, string key, int fallback, int count)
     {
         var m = Regex.Match(json, "\"" + key + "\"\\s*:\\s*(\\d+)");
@@ -312,8 +359,7 @@ static class AstroBotLauncher
             return 1;
         }
         string settingsPath = Path.Combine(root, @"Build\astrohybrid-settings.json");
-        string json = "";
-        try { if (File.Exists(settingsPath)) json = File.ReadAllText(settingsPath); } catch { }
+        string json = ReadSettingsFile(settingsPath);
 
         var form = new Form
         {
@@ -467,7 +513,7 @@ static class AstroBotLauncher
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(settingsPath));
-                File.WriteAllText(settingsPath, string.Format(
+                WriteSettingsAtomically(settingsPath, string.Format(
                     "{{\r\n    \"lighting\":  {0},\r\n    \"fps\":  {1},\r\n    \"size\":  {2},\r\n    \"fullscreen\":  {3},\r\n    \"ultrawide\":  {4},\r\n    \"realspeed\":  {5},\r\n    \"speed\":  {6},\r\n    \"overlay\":  {7},\r\n    \"upscale\":  {8},\r\n    \"fgmode\":  {9},\r\n    \"lowlatency\":  {10},\r\n    \"fgtarget\":  {11},\r\n    \"pad\":  {12},\r\n    \"rumble\":  {13},\r\n    \"rumblepct\":  {14},\r\n    \"switchboost\":  {15},\r\n    \"fpsv\":  2\r\n}}",
                     lighting.SelectedIndex, fps.SelectedIndex, size.SelectedIndex,
                     fullscreen.Checked ? "true" : "false", ultrawide.Checked ? "true" : "false", "true", speed.SelectedIndex, overlay.SelectedIndex,
@@ -475,7 +521,13 @@ static class AstroBotLauncher
                     target.SelectedIndex, pad.SelectedIndex, LegacyRumbleIndex(chosenRumble()), chosenRumble(),
                     switchBoost.Checked ? "true" : "false"));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Staying open is better than closing on a save that did not happen.
+                MessageBox.Show(form, "The settings could not be saved:\r\n\r\n" + ex.Message,
+                                "AstroBot Launcher", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             form.DialogResult = DialogResult.OK;
         };
         form.AcceptButton = play;
