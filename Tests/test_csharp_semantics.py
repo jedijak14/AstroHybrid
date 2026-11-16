@@ -17,7 +17,11 @@ surface this repository actually uses. A member missing from that table is repor
 as an error, so the check never invents a failure; it only fails on a definite contradiction or a
 duplicate/redeclaration, which does not need the BCL at all.
 
-Run: python Tests/test_csharp_semantics.py [--verbose]
+Exit codes: 0 clean (or warnings only), 1 errors found, 77 the C# grammar is not installed and
+nothing was checked. A skip is 77 rather than 0 so a runner cannot mistake "did not run" for "passed";
+pass --allow-skip to get 0 instead.
+
+Run: python Tests/test_csharp_semantics.py [--verbose] [--allow-skip]
 """
 import glob
 import pathlib
@@ -28,8 +32,9 @@ try:
     import tree_sitter_c_sharp as tscs
     from tree_sitter import Language, Parser
 except ImportError:
+    # Exit 77, not 0: a skip that looks like a pass is how a broken check goes unnoticed.
     print("SKIP tree_sitter not installed (pip install tree_sitter tree_sitter_c_sharp)")
-    sys.exit(0)
+    sys.exit(77 if "--allow-skip" not in sys.argv else 0)
 
 root = pathlib.Path(__file__).resolve().parents[1]
 parser = Parser(Language(tscs.language()))

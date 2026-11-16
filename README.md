@@ -37,11 +37,9 @@ what setup built.
 | ![Home page](docs/screenshots/app-home.png) | ![Graphics page](docs/screenshots/app-graphics.png) |
 | **Controller** | **Advanced** |
 | ![Controller page](docs/screenshots/app-controller.png) | ![Advanced page](docs/screenshots/app-advanced.png) |
-| **Installation** | |
-| ![Installation page](docs/screenshots/app-installation.png) | |
 
-The images are rendered from the launcher's XAML (`Tools/brand/render_screenshots.js`) so they match
-the shipped layout; see [Docs/LAUNCHER_UI.md](Docs/LAUNCHER_UI.md).
+These are captures of the launcher as it was built and released (`v1.0.0`-`v1.0.9`). The Installation
+page is not shown: no capture of it was ever taken, and the page has changed since.
 
 ## What it is
 
