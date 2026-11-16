@@ -162,6 +162,7 @@
   <ItemGroup>
     <Resource Include="Resources\astrohybrid.ico" />
     <Resource Include="Resources\astrohybrid.png" />
+    <Resource Include="Resources\astrohybrid-mark.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

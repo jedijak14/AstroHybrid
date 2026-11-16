@@ -44,6 +44,10 @@ const C = {
   accentDeep: "#6A54F0",
   highlight: "#35D0A5",
   amber: "#FFC25C",
+  planet: "#F6F2E3",
+  ring: "#8B7CFF",
+  sparkle: "#A99BFF",
+  tile: "#0E121A",
   error: "#FF5C6C",
 };
 
@@ -205,6 +209,32 @@ function statCard(x, y, w, label, value, detail, { valueSize = 20 } = {}) {
   return s;
 }
 
+/**
+ * The launcher mark as vectors: planet + ring (ring split so it passes in front
+ * of the disc) + sparkle. Mirrors Tools/brand/make_logo.py.
+ */
+function markSvg(cx, cy, size, { tile = false, sparkle: withSparkle = true } = {}) {
+  const k = size / 100;                       // design grid is 100 units
+  const id = `rf${Math.round(cx)}_${Math.round(cy)}_${Math.round(size)}`;
+  let s = "";
+  if (tile) s += rect(cx - size / 2, cy - size / 2, size, size, { fill: C.tile, r: size * 0.215 });
+
+  const rx = 35.5 * k, ry = 11.2 * k, th = 6.2 * k, pr = 23.2 * k;
+  const rot = `rotate(-18 ${cx} ${cy})`;
+  // Everything below the disc's horizontal midline reads as "in front".
+  s += `<clipPath id="${id}"><rect x="${cx - size}" y="${cy - ry * 0.15}" width="${size * 2}" height="${size * 2}"/></clipPath>`;
+  s += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${C.ring}" stroke-width="${th}" transform="${rot}"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="${pr}" fill="${C.planet}"/>`;
+  s += `<g clip-path="url(#${id})"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${C.ring}" stroke-width="${th}" transform="${rot}"/></g>`;
+
+  if (withSparkle) {
+    const sx = cx + (78.5 - 50) * k, sy = cy + (23.5 - 50) * k, sr = 6.6 * k, w = sr * 0.28;
+    s += `<path d="M${sx} ${sy - sr} L${sx + w} ${sy - w} L${sx + sr} ${sy} L${sx + w} ${sy + w} ` +
+         `L${sx} ${sy + sr} L${sx - w} ${sy + w} L${sx - sr} ${sy} L${sx - w} ${sy - w} Z" fill="${C.sparkle}"/>`;
+  }
+  return s;
+}
+
 /* --------------------------------------------------------------- chrome */
 function chrome({ logo }) {
   let s = `<defs>
@@ -214,13 +244,14 @@ function chrome({ logo }) {
     <radialGradient id="appbg" cx="0.18" cy="0.02" r="0.95">${stop(0, C.bgTop)}${stop(0.55, "#0C1018")}${stop(1, "#090C12")}</radialGradient>
     <radialGradient id="platGlow" cx="0.5" cy="0.5" r="0.5">${stop(0, C.accent, 0.16)}${stop(1, C.accent, 0)}</radialGradient>
     <clipPath id="body"><rect x="0" y="32" width="${W}" height="${H - 32}" rx="0"/></clipPath>
+    <clipPath id="ringFront"><rect x="0" y="${160}" width="${W}" height="${H}"/></clipPath>
   </defs>`;
 
   // Window frame + title bar
   s += rect(0, 0, W, H, { fill: "url(#appbg)", r: 0 });
   s += rect(0, 0, W, 32, { fill: "#0C1017" });
   s += `<line x1="0" y1="32" x2="${W}" y2="32" stroke="${C.borderSubtle}"/>`;
-  s += `<image href="data:image/png;base64,${logo}" x="12" y="8" width="16" height="16"/>`;
+  s += markSvg(20, 16, 16, { tile: true });
   s += text(36, 21, "AstroHybrid", { size: 12, fill: C.textSecondary });
   // minimise / maximise / close
   s += `<path d="M${W - 96} 16 h9" stroke="${C.textMuted}" stroke-width="1.2"/>`;
@@ -230,9 +261,9 @@ function chrome({ logo }) {
   // Sidebar
   s += rect(0, 32, SIDEBAR, H - 32, { fill: C.sidebar });
   s += `<line x1="${SIDEBAR}" y1="32" x2="${SIDEBAR}" y2="${H}" stroke="${C.borderSubtle}"/>`;
-  s += `<image href="data:image/png;base64,${logo}" x="18" y="50" width="34" height="34"/>`;
+  s += markSvg(35, 67, 34);
   s += text(63, 66, "AstroHybrid", { size: 15.5, weight: 600, fill: C.text });
-  s += text(63, 81, "Astro Bot for PC", { size: 11, fill: C.textMuted });
+  s += `<text x="63" y="81" font-family="${SANS}" font-size="11" fill="${C.textMuted}">Astro Bot for PC<tspan fill="#4E5766"> · 1.1</tspan></text>`;
   s += `<line x1="0" y1="96" x2="${SIDEBAR}" y2="96" stroke="${C.borderSubtle}"/>`;
 
   // Footer status block
@@ -301,9 +332,8 @@ function sceneHome() {
 
   // Logo plate
   const px = x + width - 26 - 176, py = y + 6;
-  s += rect(px, py, 176, 176, { fill: "#14000000", stroke: C.borderSubtle, r: 18 });
-  s += `<circle cx="${px + 88}" cy="${py + 88}" r="75" fill="url(#platGlow)"/>`;
-  s += `<image href="data:image/png;base64,${logoB64}" x="${px + 28}" y="${py + 28}" width="120" height="120"/>`;
+  s += rect(px, py, 176, 176, { fill: C.surfaceLight, stroke: C.border, r: 18 });
+  s += markSvg(px + 88, py + 88, 124);
 
   // Stat row
   const sy = y + 204, gap = 10;
@@ -355,7 +385,7 @@ function sceneGraphics() {
   s += card(x, cy, width, 112);
   s += sectionTitle(x + 18, cy + 28, "Frame rate");
   s += row(x + 18, cy + 42, "Limit", combo(x + 168, cy + 42, 380, "60 FPS"));
-  s += note(x + 18, cy + 96, "Press Ctrl+F2 in game to cycle the limit.");
+  s += note(x + 18, cy + 96, "Ctrl+F2 cycles the limit while the game is running.");
 
   cy += 126;
   s += card(x, cy, width, 216);

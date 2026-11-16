@@ -67,14 +67,15 @@
                 <Border Grid.Row="0" Padding="18,18,18,16"
                         BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="0,0,0,1">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Resources/astrohybrid.png" Width="34" Height="34"
+                        <Image Source="/Resources/astrohybrid-mark.png" Width="34" Height="34"
                                RenderOptions.BitmapScalingMode="HighQuality"
                                VerticalAlignment="Center"/>
                         <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="AstroHybrid" FontSize="15.5" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Astro Bot for PC" FontSize="11"
-                                       Foreground="{StaticResource TextMutedBrush}" Margin="0,1,0,0"/>
+                            <TextBlock FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,1,0,0">
+                                <Run Text="Astro Bot for PC"/><Run Text=" · 1.1" Foreground="#FF4E5766"/>
+                            </TextBlock>
                         </StackPanel>
                     </StackPanel>
                 </Border>

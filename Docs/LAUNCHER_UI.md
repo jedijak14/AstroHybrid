@@ -8,16 +8,28 @@ presentation only - no game, setup, update or service code is involved.
 | File | Use |
 | --- | --- |
 | `AstroHybrid.App/Resources/astrohybrid.ico` | Window title bar, taskbar, `AstroHybrid.exe` |
-| `AstroHybrid.App/Resources/astrohybrid.png` | Sidebar lockup and the plate on the Home page |
-| `Docs/images/astrohybrid-logo.png` | Preview sheet (512 px plus the 16-64 px reductions) |
+| `AstroHybrid.App/Resources/astrohybrid.png` | The tiled icon (exe, docs, packaging) |
+| `AstroHybrid.App/Resources/astrohybrid-mark.png` | Transparent mark, used in the sidebar and on the Home plate |
+| `Docs/images/astrohybrid-logo.png` | Preview sheet |
 
-The mark is a violet badge with a white four-point sparkle and a thin amber
-orbit ring. It is drawn from primitives, so it contains no game artwork.
+The mark is deliberately **flat**: a warm off-white planet with a violet ring
+and one small sparkle on a near-black tile. Solid fills only - no gradients,
+glow, bevel or shadow - because that is what keeps it crisp at 16 px and stops
+it looking like generated artwork. Inspiration came from flat planetary logo
+marks and the restrained two-colour style used by good app icons.
 
-Regenerate it with:
+Two variants exist for a reason: the tile is the same near-black as the
+sidebar, so a tiled image would disappear there. The UI uses the transparent
+`astrohybrid-mark.png`; the tiled PNG and the ICO are for the shell.
+
+The 16 and 24 px ICO frames are drawn separately (`small_simplified`) with a
+thicker ring, no sparkle and tighter margins, because the full mark turns to
+noise at that size.
+
+Regenerate:
 
 ```bash
-python3 Tools/brand/make_logo.py          # writes the PNG, ICO and preview
+python3 Tools/brand/make_logo.py               # PNGs, ICO, preview sheet
 powershell -File Tools\release\make_icon.ps1   # same mark, no Python needed
 ```
 
