@@ -152,12 +152,12 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Style="{StaticResource BodyTextStyle}" FontSize="17"
-                                                   Margin="0,0,12,0" VerticalAlignment="Center">
-                                            <TextBlock.Text>
-                                                <Binding Path="Type" Converter="{StaticResource ControllerTypeToIconConverter}"/>
-                                            </TextBlock.Text>
-                                        </TextBlock>
+                                        <!-- Resolves to a Geometry in MainWindow.xaml; see ControllerTypeToIconConverter -->
+                                        <Path Grid.Column="0" Width="22" Height="22" Margin="0,0,14,0"
+                                              VerticalAlignment="Center" Stretch="Uniform" Fill="Transparent"
+                                              Stroke="{StaticResource TextSecondaryBrush}" StrokeThickness="1.4"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                              Data="{Binding Type, Converter={StaticResource ControllerTypeToIconConverter}}"/>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Name}" Style="{StaticResource BodyTextStyle}"

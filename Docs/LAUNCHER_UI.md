@@ -108,3 +108,37 @@ turns a translucent surface into a solid block.
 the launcher can be built on Windows, replace them with real captures
 (1100x720, dark desktop) - the filenames and the README gallery can stay as they
 are.
+
+## Icons
+
+All glyphs are stroked `Path` geometry on a 20x20 grid with a 1.4-1.5 px stroke,
+round caps and joins, and `Fill="Transparent"` -- the stroke is what carries the
+colour, so a glyph inherits the active brush.
+
+| Where | Source |
+| --- | --- |
+| Sidebar | `IconHome`, `IconGraphics`, `IconController`, `IconAdvanced`, `IconInstallation` in `MainWindow.xaml` |
+| Connected controllers | `IconPadPs`, `IconPadXbox`, `IconPadSwitch`, `IconPadGeneric` in `MainWindow.xaml`, selected by `ControllerTypeToIconConverter` |
+| Installation buttons | `ButtonGlyphStyle` + inline geometry in `InstallationView.xaml` |
+
+`ControllerTypeToIconConverter` returns the **key** of a geometry, and the view
+binds that key to a `Path.Data`. It used to return Segoe MDL2 private-use
+characters, which render as empty boxes in any other font -- that is why the
+controller list used to look broken.
+
+Nav glyphs are drawn at 18 px and the pad glyphs at 22 px; both were checked at
+that size, because a glyph that reads well at 120 px can collapse to a smear.
+The 20x20 grid gives 1.5 px of margin all round so nothing clips.
+
+## Scrollbars and tooltips
+
+`ScrollBar` and `ToolTip` have app-wide styles in `Styles.xaml`. WPF's defaults
+draw a light grey trough with arrow buttons and a white drop-shadowed tooltip on
+top of a near-black window, which looks broken rather than stock.
+
+## Key caps
+
+`KeyCapStyle` + `KeyCapTextStyle` (mono) render an in-game key. They are used on
+Home for F2, Ctrl+F2, Shift+F2 and F11. Only bindings that exist in the game
+patches belong here -- an earlier draft listed F12 for screenshots, which the
+port does not implement.

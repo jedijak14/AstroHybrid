@@ -120,26 +120,30 @@ namespace AstroHybrid.App
     }
 
     // Controller type to icon converter
+    /// <summary>
+    /// Maps a detected controller type to the key of a vector glyph declared in
+    /// MainWindow.xaml (IconPadPs, IconPadXbox, ...).
+    ///
+    /// This used to return Segoe MDL2 private-use characters, which only exist in
+    /// that one font: everywhere else - and on any machine without it - the list
+    /// showed empty boxes. Keys resolve to paths, so they always draw.
+    /// </summary>
     public class ControllerTypeToIconConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string controllerType)
+            switch ((value as string)?.ToLowerInvariant())
             {
-                switch (controllerType.ToLowerInvariant())
-                {
-                    case "dualsense":
-                    case "dualshock 4":
-                        return ""; // PlayStation icon
-                    case "xbox":
-                        return ""; // Xbox icon
-                    case "switch pro":
-                        return ""; // Nintendo Switch icon
-                    default:
-                        return ""; // Generic gamepad icon
-                }
+                case "dualsense":
+                case "dualshock 4":
+                    return "IconPadPs";
+                case "xbox":
+                    return "IconPadXbox";
+                case "switch pro":
+                    return "IconPadSwitch";
+                default:
+                    return "IconPadGeneric";
             }
-            return "";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
