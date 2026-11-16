@@ -78,9 +78,17 @@ builds. A glyph inherits the active colour through
 
 ## Screenshots
 
-`docs/screenshots/*.png` are rendered from the XAML with
-`Tools/brand/render_screenshots.js`, because the app cannot be run in the
-environment the docs are maintained in. The renderer reads
+`docs/screenshots/*.png` are the **real captures** from the released launcher
+(`v1.0.0`-`v1.0.9`, the build in `0bedcdd`): four pages, taken on the development
+PC. They show the UI as it was before the 2026-11-16 refresh, on purpose - they
+are evidence of what shipped, not a mock-up of what ships next. There is no
+capture of the Installation page; one was never taken, so the README gallery
+shows four pages rather than five.
+
+`Tools/brand/render_screenshots.js` still builds a rendering of the current
+layout from the XAML - useful for checking a change without Windows, but its
+output is **not** what the README shows and should not be committed to
+`docs/screenshots` without saying so. The renderer reads
 `AstroHybrid.App/Views/*.xaml`, rebuilds the window at its real 1100x720 size
 with the same cards, spacing and copy (plus representative strings from the view
 models), and rasterises the result.
@@ -96,18 +104,19 @@ ASTROHYBRID_FONT_DIR=<dir with inter-latin-{400,500,600,700}-normal.ttf> \
 ```
 
 It covers the five pages (`app-home`, `app-graphics`, `app-controller`,
-`app-advanced`, `app-installation`). If a page is added or renamed, update the
-`SCENES` list - the renderer throws on a missing view rather than quietly
-producing a stale picture.
+`app-advanced`, `app-installation`) and writes to the output directory given on
+the command line - point it anywhere except `docs/screenshots`, which holds the
+released captures. If a page is added or renamed, update the `SCENES` list: the
+renderer throws on a missing view rather than quietly producing a stale picture.
 
 Colours in the XAML are WPF's `#AARRGGBB`; the renderer converts them to
 `rgba()` because an eight-digit hex in SVG means `#RRGGBBAA`, which silently
 turns a translucent surface into a solid block.
 
-**These are renderings of the layout, not screenshots of a running app.** When
-the launcher can be built on Windows, replace them with real captures
-(1100x720, dark desktop) - the filenames and the README gallery can stay as they
-are.
+**Do not confuse the two.** The files in `docs/screenshots` are captures of a
+running app; anything this script writes is a layout rendering. If the gallery is
+ever updated to the redesigned UI, the replacements must come from a real build
+on Windows (1100x720, dark desktop) - the filenames can stay as they are.
 
 ## Icons
 
@@ -177,5 +186,6 @@ The section is enabled only on a supported Radeon card (`SupportsAmd`) and
 unsupported AMD card, or no AMD card in the machine.
 
 `Tools/brand/render_screenshots.js` shows the card greyed out on the NVIDIA
-machine the screenshots are taken on, and `app-graphics.png` is rendered
-scrolled down so the card is visible.
+machine the renderings are made on, scrolled down so the card is visible. This is
+not in `docs/screenshots`, which holds the released captures from before the AMD
+card existed; it is a check of the current layout only.
