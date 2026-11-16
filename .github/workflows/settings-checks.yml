@@ -46,8 +46,17 @@ jobs:
       - name: Settings JSON round trip
         run: python Tests/test_settings_json.py
 
+      - name: Install the C# grammar used by the checks below
+        run: pip install tree_sitter tree_sitter_c_sharp
+
       # A {Binding} to a member the view model does not have fails silently in WPF.
       - name: XAML bindings resolve
-        run: |
-          pip install tree_sitter tree_sitter_c_sharp
-          python Tests/test_xaml_bindings.py
+        run: python Tests/test_xaml_bindings.py
+
+      # Members, argument counts, enum values, literals and BCL names, checked without a .NET runtime.
+      - name: C# semantics
+        run: python Tests/test_csharp_semantics.py
+
+      # Proves the checker above still catches an injected fault of each kind.
+      - name: Semantic checker self-test
+        run: python Tests/test_semantics_selftest.py
