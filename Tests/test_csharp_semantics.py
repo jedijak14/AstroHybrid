@@ -181,8 +181,11 @@ def members_of(name, seen=None):
 BCL = {
     "Path": {"Combine", "GetFileName", "GetDirectoryName", "GetFileNameWithoutExtension", "GetExtension",
              "GetFullPath", "GetTempPath", "GetTempFileName"},
+    # Replace/Move are what make a settings save atomic; they were missing from the table until the
+    # save was rewritten, which is why the checker reported File.Replace as a typo.
     "File": {"Exists", "Copy", "Delete", "WriteAllText", "ReadAllText", "ReadAllBytes", "WriteAllBytes",
-             "Move", "AppendAllText", "Create", "OpenRead", "OpenWrite"},
+             "Move", "AppendAllText", "Create", "OpenRead", "OpenWrite", "Replace"},
+    "FileStream": {"Flush", "Write", "Read", "Close", "Dispose", "Length", "Position", "Seek"},
     "Directory": {"Exists", "CreateDirectory", "GetFiles", "GetDirectories", "Delete"},
     "Array": {"Copy", "IndexOf", "Resize", "Empty"},
     "BitConverter": {"GetBytes", "ToInt64", "ToUInt32", "ToUInt16", "ToInt32", "ToUInt64", "ToString"},
@@ -209,7 +212,8 @@ BCL_TYPES = set(BCL) | {"Visibility", "MessageBoxButton", "MessageBoxImage", "Co
                          "ColorConverter", "SolidColorBrush", "Brush", "BrushConverter", "FontFamily",
                          "Application", "Dispatcher", "DispatcherTimer", "Window", "UserControl",
                          "PropertyChangedEventArgs", "StringComparison", "StringSplitOptions",
-                         "CultureInfo", "Encoding", "FileStream", "FileMode", "FileAccess"}
+                         "CultureInfo", "Encoding", "FileStream", "FileMode", "FileAccess",
+                         "FileShare", "FileOptions", "UTF8Encoding"}
 
 
 # --- 4. Member access through a variable of a known repository type ------------------------------

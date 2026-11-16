@@ -14,6 +14,8 @@ on:
       - "AstroHybrid.App/Services/HardwareDetector.cs"
       - "AstroHybrid.App/ViewModels/MainWindowViewModel.cs"
       - "AstroHybrid.App/ViewModels/GraphicsSettingsViewModel.cs"
+      - "Tools/hybrid/launcher/AstroBotLauncher.cs"
+      - "AstroHybrid.App/Services/SettingsManager.cs"
       - "Tests/settings_model.py"
       - "Tests/test_settings_*.py"
       - ".github/workflows/settings-checks.yml"
@@ -45,6 +47,11 @@ jobs:
       # Old settings files still load; the AMD fields persist.
       - name: Settings JSON round trip
         run: python Tests/test_settings_json.py
+
+      # The settings file is written by both the app and the classic launcher: an interrupted save
+      # must not lose it, and a recovery must never be silent.
+      - name: Settings survive an interrupted save
+        run: python Tests/test_settings_recovery.py
 
       - name: Install the C# grammar used by the checks below
         run: pip install tree_sitter tree_sitter_c_sharp

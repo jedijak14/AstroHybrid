@@ -100,7 +100,15 @@ $play.Add_Click({
     try {
         $out = [ordered]@{ lighting = $lighting.SelectedIndex; fps = $fps.SelectedIndex; size = $size.SelectedIndex; fullscreen = $fullscreen.Checked; ultrawide = $ultrawide.Checked; realspeed = $realspeed.Checked }
         [void][IO.Directory]::CreateDirectory((Split-Path $settingsPath -Parent))
-        [IO.File]::WriteAllText($settingsPath, ($out | ConvertTo-Json))
+        # Write beside the file and swap it in: WriteAllText on the live file truncates it first, so a
+        # crash or a full disk mid-write leaves JSON that will not parse and the app loads defaults.
+        $tempPath = $settingsPath + '.tmp'
+        [IO.File]::WriteAllText($tempPath, ($out | ConvertTo-Json))
+        if (Test-Path -LiteralPath $settingsPath) {
+            [IO.File]::Replace($tempPath, $settingsPath, ($settingsPath + '.bak'))
+        } else {
+            [IO.File]::Move($tempPath, $settingsPath)
+        }
         $form.DialogResult = 'OK'
     } catch {
         [void][Windows.Forms.MessageBox]::Show($form, $_.Exception.Message, 'Could not save settings')
